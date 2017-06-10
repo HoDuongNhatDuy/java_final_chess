@@ -141,6 +141,46 @@ public class Table
         }
     }
 
+    public static class MoveLog
+    {
+        private final List<Move> moves;
+
+        public MoveLog()
+        {
+            this.moves = new ArrayList<>();
+        }
+
+        public List<Move> getMoves()
+        {
+            return moves;
+        }
+
+        public void add(final Move move)
+        {
+            moves.add(move);
+        }
+
+        public int size()
+        {
+            return moves.size();
+        }
+
+        public void clear()
+        {
+            moves.clear();
+        }
+
+        public Move remove(final int index)
+        {
+            return moves.remove(index);
+        }
+
+        public boolean remove(final Move move)
+        {
+            return moves.remove(move);
+        }
+    }
+
     private class TilePanel extends JPanel
     {
         private final Coordinate coordinate;
