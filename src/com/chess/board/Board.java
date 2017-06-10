@@ -141,8 +141,8 @@ public class Board
         builder.setPiece(new Rook(new Coordinate(0, 0), Alliance.WHITE));
         builder.setPiece(new Knight(new Coordinate(1, 0), Alliance.WHITE));
         builder.setPiece(new Bishop(new Coordinate(2, 0), Alliance.WHITE));
-        builder.setPiece(new King(new Coordinate(3, 0), Alliance.WHITE));
-        builder.setPiece(new Queen(new Coordinate(4, 0), Alliance.WHITE));
+        builder.setPiece(new Queen(new Coordinate(3, 0), Alliance.WHITE));
+        builder.setPiece(new King(new Coordinate(4, 0), Alliance.WHITE));
         builder.setPiece(new Bishop(new Coordinate(5, 0), Alliance.WHITE));
         builder.setPiece(new Knight(new Coordinate(6, 0), Alliance.WHITE));
         builder.setPiece(new Rook(new Coordinate(7, 0), Alliance.WHITE));
@@ -159,8 +159,8 @@ public class Board
         builder.setPiece(new Rook(new Coordinate(0, 7), Alliance.BLACK));
         builder.setPiece(new Knight(new Coordinate(1, 7), Alliance.BLACK));
         builder.setPiece(new Bishop(new Coordinate(2, 7), Alliance.BLACK));
-        builder.setPiece(new King(new Coordinate(3, 7), Alliance.BLACK));
-        builder.setPiece(new Queen(new Coordinate(4, 7), Alliance.BLACK));
+        builder.setPiece(new Queen(new Coordinate(3, 7), Alliance.BLACK));
+        builder.setPiece(new King(new Coordinate(4, 7), Alliance.BLACK));
         builder.setPiece(new Bishop(new Coordinate(5, 7), Alliance.BLACK));
         builder.setPiece(new Knight(new Coordinate(6, 7), Alliance.BLACK));
         builder.setPiece(new Rook(new Coordinate(7, 7), Alliance.BLACK));
