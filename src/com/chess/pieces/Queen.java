@@ -31,7 +31,12 @@ public class Queen extends Piece
 
     public Queen(Coordinate coordinate, Alliance alliance)
     {
-        super(PieceType.QUEEN, coordinate, alliance);
+        super(PieceType.QUEEN, coordinate, alliance, true);
+    }
+
+    public Queen(Coordinate coordinate, Alliance alliance, boolean isFirstMove)
+    {
+        super(PieceType.QUEEN, coordinate, alliance, isFirstMove);
     }
 
     @Override

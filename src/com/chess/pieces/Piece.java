@@ -19,12 +19,12 @@ public abstract class Piece
     protected boolean isFirstMove;
     private final int cachedHashCode;
 
-    public Piece(final PieceType pieceType, final Coordinate coordinate, final Alliance alliance)
+    public Piece(final PieceType pieceType, final Coordinate coordinate, final Alliance alliance, final boolean isFirstMove)
     {
         this.coordinate = coordinate;
         this.alliance = alliance;
-        this.isFirstMove = true;
         this.pieceType = pieceType;
+        this.isFirstMove = isFirstMove;
 
         cachedHashCode = computeHashCode();
     }

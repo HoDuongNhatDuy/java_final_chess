@@ -17,7 +17,12 @@ public class Pawn extends Piece
 {
     public Pawn(Coordinate coordinate, Alliance alliance)
     {
-        super(PieceType.PAWN, coordinate, alliance);
+        super(PieceType.PAWN, coordinate, alliance, true);
+    }
+
+    public Pawn(Coordinate coordinate, Alliance alliance, boolean isFirstMove)
+    {
+        super(PieceType.PAWN, coordinate, alliance, isFirstMove);
     }
 
     @Override

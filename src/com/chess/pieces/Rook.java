@@ -28,7 +28,12 @@ public class Rook extends Piece
 
     public Rook(Coordinate coordinate, Alliance alliance)
     {
-        super(PieceType.ROOK, coordinate, alliance);
+        super(PieceType.ROOK, coordinate, alliance, true);
+    }
+
+    public Rook(Coordinate coordinate, Alliance alliance, boolean isFirstMove)
+    {
+        super(PieceType.ROOK, coordinate, alliance, isFirstMove);
     }
 
     @Override

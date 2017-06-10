@@ -31,7 +31,12 @@ public class Knight extends Piece
 
     public Knight(final Coordinate coordinate, final Alliance alliance)
     {
-        super(PieceType.KNIGHT, coordinate, alliance);
+        super(PieceType.KNIGHT, coordinate, alliance, true);
+    }
+
+    public Knight(final Coordinate coordinate, final Alliance alliance, boolean isFirstMove)
+    {
+        super(PieceType.KNIGHT, coordinate, alliance, isFirstMove);
     }
 
     @Override

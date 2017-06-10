@@ -28,7 +28,12 @@ public class King extends Piece
 
     public King(Coordinate coordinate, Alliance alliance)
     {
-        super(PieceType.KING, coordinate, alliance);
+        super(PieceType.KING, coordinate, alliance, true);
+    }
+
+    public King(Coordinate coordinate, Alliance alliance, boolean isFirstMove)
+    {
+        super(PieceType.KING, coordinate, alliance, isFirstMove);
     }
 
     @Override

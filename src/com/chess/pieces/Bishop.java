@@ -26,7 +26,12 @@ public class Bishop extends Piece
 
     public Bishop(Coordinate coordinate, Alliance alliance)
     {
-        super(PieceType.BISHOP, coordinate, alliance);
+        super(PieceType.BISHOP, coordinate, alliance, true);
+    }
+
+    public Bishop(Coordinate coordinate, Alliance alliance, boolean isFirstMove)
+    {
+        super(PieceType.BISHOP, coordinate, alliance, isFirstMove);
     }
 
     @Override
