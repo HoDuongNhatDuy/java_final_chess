@@ -80,7 +80,7 @@ public class WhitePlayer extends Player
                 final Tile rookTile = this.board.getTile(new Coordinate(0, 0));
                 if (rookTile.isOccupied() && rookTile.getPiece().isFirstMove())
                 {
-                    kingCastles.add(new KingSideCastleMove(this.board,
+                    kingCastles.add(new QueenSideCastleMove(this.board,
                             this.getKing(),
                             new Coordinate(2, 0),
                             (Rook) rookTile.getPiece(),

@@ -79,7 +79,7 @@ public class BlackPlayer extends Player
                 final Tile rookTile = this.board.getTile(new Coordinate(0, 7));
                 if (rookTile.isOccupied() && rookTile.getPiece().isFirstMove())
                 {
-                    kingCastles.add(new KingSideCastleMove(this.board,
+                    kingCastles.add(new QueenSideCastleMove(this.board,
                             this.getKing(),
                             new Coordinate(2, 7),
                             (Rook) rookTile.getPiece(),
