@@ -40,7 +40,7 @@ public class Pawn extends Piece
         {
             legalMoves.add(new MajorMove(board, this, straightMoveCoordinate));
         }
-        if (this.isFirstMove)
+        if (this.isFirstMove && ((this.getAlliance().isWhite() && this.getCoordinate().getY() == 1) || (this.getAlliance().isBlack() && this.getCoordinate().getY() == 6)))
         {
             Coordinate firstStraightMoveCoordinate = new Coordinate(this.coordinate.getX(), this.coordinate.getY() + 2 * this.alliance.getDirection());
 
