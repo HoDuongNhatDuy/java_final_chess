@@ -9,8 +9,11 @@ import com.chess.pieces.Piece;
  */
 public class BoardUtils
 {
+    final static String[] BOARD_COLUMN_NAME = {"a", "b", "c", "d", "e", "f", "g", "h"};
+
     private BoardUtils()
     {
+        throw new RuntimeException("Can not instant me");
     }
 
     public static boolean isValidTileCoordinate(Coordinate coordinate)
@@ -23,6 +26,6 @@ public class BoardUtils
 
     public static String getPositionAtCoordinate(Coordinate coordinate)
     {
-        return "Not implement yet";
+        return BOARD_COLUMN_NAME[coordinate.getX()] + (coordinate.getY() + 1);
     }
 }

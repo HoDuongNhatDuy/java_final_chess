@@ -234,6 +234,12 @@ public abstract class Move
             builder.setMoveMarker(this.board.getCurrentPlayer().getOpponent().getAlliance());
             return builder.build();
         }
+
+        @Override
+        public String toString()
+        {
+            return getMovedPiece().getPieceType().toString() + BoardUtils.getPositionAtCoordinate(this.destinationCoordinate);
+        }
     }
 
     static abstract class CastleMove extends Move
