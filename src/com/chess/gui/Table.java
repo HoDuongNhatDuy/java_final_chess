@@ -192,21 +192,21 @@ public class Table
                             humanMovePiece = null;
                             destinationTile = null;
                         }
-                        SwingUtilities.invokeLater(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                try
-                                {
-                                    boardPanel.drawBoard(chessBoard);
-                                } catch (IOException e1)
-                                {
-                                    e1.printStackTrace();
-                                }
-                            }
-                        });
                     }
+                    SwingUtilities.invokeLater(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            try
+                            {
+                                boardPanel.drawBoard(chessBoard);
+                            } catch (IOException e1)
+                            {
+                                e1.printStackTrace();
+                            }
+                        }
+                    });
                 }
 
                 @Override
@@ -239,8 +239,10 @@ public class Table
 
         public void drawTile(final Board board) throws IOException
         {
+            setBorder(BorderFactory.createEmptyBorder());
             assignColor();
             assignTilePieceIcon(board);
+            highLightLegalMoves(board);
 
             validate();
             repaint();
@@ -261,6 +263,28 @@ public class Table
 
                 add(new JLabel(new ImageIcon(image)));
             }
+        }
+
+        private void highLightLegalMoves(final Board board) throws IOException
+        {
+            for (final Move move : pieceLegalMoves(board))
+            {
+                if (move.getDestinationCoordinate().equals(this.coordinate))
+                {
+                    //add(new JLabel(new ImageIcon(ImageIO.read(new File("art/misc/green_dot.png")))));
+                    setBorder(BorderFactory.createLineBorder(Color.GREEN, 2));
+                }
+            }
+        }
+
+        private Collection<Move> pieceLegalMoves(Board board)
+        {
+            if (humanMovePiece != null && humanMovePiece.getAlliance() == board.getCurrentPlayer().getAlliance())
+            {
+                return humanMovePiece.calculateLegalMoves(board);
+            }
+
+            return Collections.emptyList();
         }
 
         private void assignColor()
