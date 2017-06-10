@@ -32,6 +32,10 @@ public class Table
     private final BoardPanel boardPanel;
     private Board chessBoard;
 
+    private final GameHistoryPanel gameHistoryPanel;
+    private final TakenPiecesPanel takenPiecesPanel;
+    private final MoveLog moveLog;
+
     private Tile sourceTile;
     private Tile destinationTile;
     private Piece humanMovePiece;
@@ -55,10 +59,16 @@ public class Table
 
         this.chessBoard = Board.createStandardBoard();
 
+        this.gameHistoryPanel = new GameHistoryPanel();
+        this.takenPiecesPanel = new TakenPiecesPanel();
+        this.moveLog = new MoveLog();
+
         this.gameFrame.setSize(OUTER_FRAME_DIMENSION);
 
         this.boardPanel = new BoardPanel();
+        this.gameFrame.add(this.takenPiecesPanel, BorderLayout.WEST);
         this.gameFrame.add(this.boardPanel, BorderLayout.CENTER);
+        this.gameFrame.add(this.gameHistoryPanel, BorderLayout.EAST);
 
         this.gameFrame.setVisible(true);
     }
@@ -227,6 +237,7 @@ public class Table
                             if (transition.getMoveStatus().isDone())
                             {
                                 chessBoard = transition.getTransitionBoard();
+                                moveLog.add(move);
                             }
                             sourceTile = null;
                             humanMovePiece = null;
@@ -240,6 +251,9 @@ public class Table
                         {
                             try
                             {
+                                gameHistoryPanel.redo(chessBoard, moveLog);
+                                takenPiecesPanel.redo(moveLog);
+
                                 boardPanel.drawBoard(chessBoard);
                             } catch (IOException e1)
                             {
