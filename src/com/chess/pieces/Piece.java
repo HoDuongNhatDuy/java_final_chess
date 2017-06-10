@@ -91,9 +91,14 @@ public abstract class Piece
 
     public abstract List<Move> calculateLegalMoves(final Board board);
 
+    public int getPieceValue()
+    {
+        return pieceType.getPieceValue();
+    }
+
     public enum PieceType
     {
-        PAWN("P")
+        PAWN("P", 1)
                 {
                     @Override
                     public boolean isKing()
@@ -107,7 +112,7 @@ public abstract class Piece
                         return false;
                     }
                 },
-        KNIGHT("N")
+        KNIGHT("N", 2)
                 {
                     @Override
                     public boolean isKing()
@@ -121,7 +126,7 @@ public abstract class Piece
                         return false;
                     }
                 },
-        BISHOP("B")
+        BISHOP("B", 3)
                 {
                     @Override
                     public boolean isKing()
@@ -135,7 +140,7 @@ public abstract class Piece
                         return false;
                     }
                 },
-        ROOK("R")
+        ROOK("R", 5)
                 {
                     @Override
                     public boolean isKing()
@@ -149,7 +154,7 @@ public abstract class Piece
                         return true;
                     }
                 },
-        QUEEN("Q")
+        QUEEN("Q", 9)
                 {
                     @Override
                     public boolean isKing()
@@ -163,7 +168,7 @@ public abstract class Piece
                         return false;
                     }
                 },
-        KING("K")
+        KING("K", 100)
                 {
                     @Override
                     public boolean isKing()
@@ -179,10 +184,12 @@ public abstract class Piece
                 };
 
         private String pieceName;
+        private int pieceValue;
 
-        PieceType(final String pieceName)
+        PieceType(final String pieceName, final int pieceValue)
         {
             this.pieceName = pieceName;
+            this.pieceValue = pieceValue;
         }
 
         @Override
@@ -193,5 +200,10 @@ public abstract class Piece
 
         public abstract boolean isKing();
         public abstract boolean isRook();
+
+        public int getPieceValue()
+        {
+            return pieceValue;
+        }
     }
 }
