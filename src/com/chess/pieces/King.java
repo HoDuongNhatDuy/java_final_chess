@@ -58,7 +58,7 @@ public class King extends Piece
                     final Alliance destinationPieceAlliance = pieceAtDestination.getAlliance();
                     if (this.alliance != destinationPieceAlliance)
                     {
-                        legalMoves.add(new Move.AttackMove(board, this, candidateDestinationCoordinate, pieceAtDestination));
+                        legalMoves.add(new Move.MajorAttackMove(board, this, candidateDestinationCoordinate, pieceAtDestination));
                     }
                 }
             }

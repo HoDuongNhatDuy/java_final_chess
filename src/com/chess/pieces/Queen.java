@@ -4,6 +4,7 @@ import com.chess.Alliance;
 import com.chess.Coordinate;
 import com.chess.board.Board;
 import com.chess.board.Move;
+import com.chess.board.Move.MajorAttackMove;
 import com.chess.board.Tile;
 
 import java.util.ArrayList;
@@ -66,7 +67,7 @@ public class Queen extends Piece
                         final Alliance pieceAllianceDestination = pieceAtDestination.getAlliance();
                         if (this.getAlliance() != pieceAllianceDestination)
                         {
-                            legalMoves.add(new AttackMove(board, this, candidateDestinationCoordinate, pieceAtDestination));
+                            legalMoves.add(new MajorAttackMove(board, this, candidateDestinationCoordinate, pieceAtDestination));
                         }
                         break;
                     }
