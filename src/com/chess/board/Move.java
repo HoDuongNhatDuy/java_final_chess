@@ -7,6 +7,7 @@ import com.chess.pieces.Piece;
 import com.chess.pieces.Rook;
 import org.omg.SendingContext.RunTime;
 
+import javax.swing.*;
 import java.awt.font.FontRenderContext;
 
 /**
@@ -17,6 +18,7 @@ public abstract class Move
     final Board board;
     final Piece piece;
     final Coordinate destinationCoordinate;
+    final boolean isFirstMove;
 
     public static final Move NULL_MOVE = new NullMove();
 
@@ -30,6 +32,15 @@ public abstract class Move
         this.board = board;
         this.piece = piece;
         this.destinationCoordinate = destinationCoordinate;
+        this.isFirstMove = piece.isFirstMove();
+    }
+
+    private Move(final Board board, final Coordinate destinationCoordinate)
+    {
+        this.board = board;
+        this.piece = null;
+        this.destinationCoordinate  = destinationCoordinate;
+        this.isFirstMove = false;
     }
 
     @Override
@@ -40,7 +51,6 @@ public abstract class Move
         result = result * prime + this.piece.hashCode();
         result = result * prime + this.getDestinationCoordinate().getX();
         result = result * prime + this.getDestinationCoordinate().getY();
-
         return result;
     }
 
@@ -54,6 +64,7 @@ public abstract class Move
         final Move move = (Move)other;
 
         return this.getDestinationCoordinate().equals(move.getDestinationCoordinate()) &&
+                this.getCurrentCoordinate().equals(move.getCurrentCoordinate()) &&
                 this.getMovedPiece().equals(move.getMovedPiece());
     }
 
@@ -110,6 +121,17 @@ public abstract class Move
             super(board, piece, destinationCoordinate);
         }
 
+        @Override
+        public boolean equals(final Object other)
+        {
+            return this == other || other instanceof MajorMove && super.equals(other);
+        }
+
+        @Override
+        public String toString()
+        {
+            return getMovedPiece().getPieceType().toString() + BoardUtils.getPositionAtCoordinate(this.destinationCoordinate);
+        }
     }
 
     public static class AttackMove extends Move
