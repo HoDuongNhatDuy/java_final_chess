@@ -20,4 +20,9 @@ public class BoardUtils
                 coordinate.getY() >= 0 &&
                 coordinate.getY() <= 7;
     }
+
+    public static String getPositionAtCoordinate(Coordinate coordinate)
+    {
+        return "Not implement yet";
+    }
 }
