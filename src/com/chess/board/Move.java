@@ -315,7 +315,7 @@ public abstract class Move
     {
         public NullMove()
         {
-            super(null, null, new Coordinate(-1, -1));
+            super(null, new Coordinate(-1, -1));
         }
 
         @Override
