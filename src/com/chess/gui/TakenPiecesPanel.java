@@ -28,7 +28,7 @@ public class TakenPiecesPanel extends JPanel
     private static final Color PANEL_COLOR = Color.decode("0xFDFE6");
     private static final EtchedBorder PANEL_BORDER = new EtchedBorder(EtchedBorder.RAISED);
 
-    private static final Dimension TAKEN_PIECES_DIMENSION = new Dimension(40, 80);
+    private static final Dimension TAKEN_PIECES_DIMENSION = new Dimension(30, 600);
 
     private final static String PIECE_ICON_PATH = "art/fancy/";
 
@@ -38,10 +38,10 @@ public class TakenPiecesPanel extends JPanel
         this.setBackground(Color.decode("0xFDF5E6"));
         this.setBorder(PANEL_BORDER);
 
-        this.northPanel = new JPanel(new GridLayout(8, 2));
+        this.northPanel = new JPanel(new GridLayout(8, 1));
         this.northPanel.setBackground(PANEL_COLOR);
 
-        this.southPanel = new JPanel(new GridLayout(8, 2));
+        this.southPanel = new JPanel(new GridLayout(8, 1));
         this.southPanel.setBackground(PANEL_COLOR);
 
         this.add(this.northPanel, BorderLayout.NORTH);
@@ -63,7 +63,7 @@ public class TakenPiecesPanel extends JPanel
             if (move.isAttacked())
             {
                 final Piece takenPiece = move.getAttackedPiece();
-                if (takenPiece.getAlliance().isBlack())
+                if (takenPiece.getAlliance().isWhite())
                 {
                     blackTakenPieces.add(takenPiece);
                 }
@@ -99,8 +99,11 @@ public class TakenPiecesPanel extends JPanel
                             PIECE_ICON_PATH +
                                     takenPiece.getAlliance().toString().substring(0, 1) +
                                     takenPiece.toString() + ".gif"));
-            final ImageIcon icon = new ImageIcon(image);
-            final JLabel imageLabel = new JLabel(icon);
+
+            Image newimg = image.getScaledInstance(30, 30,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
+            final ImageIcon newIcon = new ImageIcon(newimg);  // transform it back
+
+            final JLabel imageLabel = new JLabel(newIcon);
             this.southPanel.add(imageLabel);
         }
 
@@ -111,8 +114,11 @@ public class TakenPiecesPanel extends JPanel
                             PIECE_ICON_PATH +
                                     takenPiece.getAlliance().toString().substring(0, 1) +
                                     takenPiece.toString() + ".gif"));
-            final ImageIcon icon = new ImageIcon(image);
-            final JLabel imageLabel = new JLabel(icon);
+
+            Image newimg = image.getScaledInstance(30, 30,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
+            final ImageIcon newIcon = new ImageIcon(newimg);  // transform it back
+
+            final JLabel imageLabel = new JLabel(newIcon);
             this.northPanel.add(imageLabel);
         }
 
