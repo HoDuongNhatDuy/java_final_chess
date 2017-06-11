@@ -8,6 +8,7 @@ import com.chess.pieces.Piece;
 import com.chess.player.MoveTransition;
 
 import javax.imageio.ImageIO;
+import javax.management.Notification;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -242,6 +243,14 @@ public class Table
                             sourceTile = null;
                             humanMovePiece = null;
                             destinationTile = null;
+
+                            if (chessBoard.getCurrentPlayer().isInCheckMate() || chessBoard.getCurrentPlayer().isInStaleMate())
+                            {
+                                JOptionPane.showMessageDialog(gameFrame, chessBoard.getCurrentPlayer().getOpponent().toString() + " won");
+
+                                chessBoard = Board.createStandardBoard();
+                                moveLog.clear();
+                            }
                         }
                     }
                     SwingUtilities.invokeLater(new Runnable()

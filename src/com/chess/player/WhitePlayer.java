@@ -92,4 +92,10 @@ public class WhitePlayer extends Player
 
         return kingCastles;
     }
+
+    @Override
+    public String toString()
+    {
+        return "White";
+    }
 }
