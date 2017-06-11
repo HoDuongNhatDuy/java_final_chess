@@ -38,7 +38,7 @@ public class Pawn extends Piece
         final Tile straightMoveTile = board.getTile(straightMoveCoordinate);
         if (!straightMoveTile.isOccupied())
         {
-            legalMoves.add(new MajorMove(board, this, straightMoveCoordinate));
+            legalMoves.add(new PawnMove(board, this, straightMoveCoordinate));
         }
         if (this.isFirstMove && ((this.getAlliance().isWhite() && this.getCoordinate().getY() == 1) || (this.getAlliance().isBlack() && this.getCoordinate().getY() == 6)))
         {
