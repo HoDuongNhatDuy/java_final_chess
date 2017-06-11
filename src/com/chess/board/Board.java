@@ -25,11 +25,15 @@ public class Board
     private final BlackPlayer blackPlayer;
     private final Player currentPlayer;
 
+    private final Pawn enPassantPawn;
+
     public Board(Builder builder)
     {
         this.gameBoard = createGameBoard(builder);
         this.whitePieces = calculateActivePieces(this.gameBoard, Alliance.WHITE);
         this.blackPieces = calculateActivePieces(this.gameBoard, Alliance.BLACK);
+
+        this.enPassantPawn = builder.enPassantPawn;
 
         final Collection<Move> whiteStandardLegalMoves = calculateLegalMoves(this.whitePieces);
         final Collection<Move> blackStandardLegalMoves = calculateLegalMoves(this.blackPieces);
@@ -120,6 +124,12 @@ public class Board
         return gameBoard[candidateDestinationCoordinate.getX()][candidateDestinationCoordinate.getY()];
     }
 
+    public Pawn getEnPassantPawn()
+    {
+        return enPassantPawn;
+    }
+
+
     private static Tile[][] createGameBoard(final Builder builder)
     {
         Tile[][] tiles = new Tile[8][8];
@@ -190,7 +200,7 @@ public class Board
     {
         Piece[][] boardConfig = new Piece[8][8];
         Alliance nextMoveMarker = Alliance.WHITE;
-        Pawn enPassantPawn;
+        Pawn enPassantPawn = null;
 
         public Builder()
         {

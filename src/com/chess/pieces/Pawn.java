@@ -70,6 +70,12 @@ public class Pawn extends Piece
                         legalMoves.add(new PawnAttackMove(board, this, currentCoordinate, pieceAtDestination));
                     }
                 }
+                else if (board.getEnPassantPawn() != null &&
+                        board.getEnPassantPawn().getCoordinate().equals(new Coordinate(currentCoordinate.getX(), this.coordinate.getY())) &&
+                        board.getEnPassantPawn().getAlliance() != this.getAlliance())
+                {
+                    legalMoves.add(new PawnEdPassantAttackMove(board, this, currentCoordinate, board.getEnPassantPawn()));
+                }
             }
         }
 
