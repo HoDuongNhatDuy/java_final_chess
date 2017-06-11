@@ -35,10 +35,19 @@ public class Pawn extends Piece
 
         // check straight move
         Coordinate straightMoveCoordinate = new Coordinate(this.coordinate.getX(), this.coordinate.getY() + 1 * this.alliance.getDirection());
-        final Tile straightMoveTile = board.getTile(straightMoveCoordinate);
-        if (!straightMoveTile.isOccupied())
+        if (BoardUtils.isValidTileCoordinate(straightMoveCoordinate))
         {
-            legalMoves.add(new PawnMove(board, this, straightMoveCoordinate));
+            final Tile straightMoveTile = board.getTile(straightMoveCoordinate);
+            if (!straightMoveTile.isOccupied())
+            {
+                if (this.getAlliance().isPawnPromotionSquare(straightMoveCoordinate))
+                {
+                    legalMoves.add(new PawnPromotion(new PawnMove(board, this, straightMoveCoordinate)));
+                } else
+                {
+                    legalMoves.add(new PawnMove(board, this, straightMoveCoordinate));
+                }
+            }
         }
         if (this.isFirstMove && ((this.getAlliance().isWhite() && this.getCoordinate().getY() == 1) || (this.getAlliance().isBlack() && this.getCoordinate().getY() == 6)))
         {
@@ -67,7 +76,14 @@ public class Pawn extends Piece
                     final Piece pieceAtDestination = candidateDestinationTile.getPiece();
                     if (pieceAtDestination.getAlliance() != this.alliance)
                     {
-                        legalMoves.add(new PawnAttackMove(board, this, currentCoordinate, pieceAtDestination));
+                        if (this.getAlliance().isPawnPromotionSquare(currentCoordinate))
+                        {
+                            legalMoves.add(new PawnPromotion(new PawnAttackMove(board, this, currentCoordinate, pieceAtDestination)));
+                        }
+                        else
+                        {
+                            legalMoves.add(new PawnAttackMove(board, this, currentCoordinate, pieceAtDestination));
+                        }
                     }
                 }
                 else if (board.getEnPassantPawn() != null &&
@@ -92,5 +108,10 @@ public class Pawn extends Piece
     public Pawn movePiece(Move move)
     {
         return new Pawn(move.getDestinationCoordinate(), move.getMovedPiece().getAlliance());
+    }
+
+    public Queen getPromotionPiece()
+    {
+        return new Queen(this.getCoordinate(), this.getAlliance(), false);
     }
 }

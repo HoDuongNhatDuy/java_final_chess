@@ -30,6 +30,12 @@ public enum Alliance
                 }
 
                 @Override
+                public boolean isPawnPromotionSquare(Coordinate coordinate)
+                {
+                    return coordinate.getY() == 7;
+                }
+
+                @Override
                 public Player choosePlayer(WhitePlayer whitePlayer, BlackPlayer blackPlayer)
                 {
                     return whitePlayer;
@@ -56,6 +62,12 @@ public enum Alliance
                 }
 
                 @Override
+                public boolean isPawnPromotionSquare(Coordinate coordinate)
+                {
+                    return coordinate.getY() == 0;
+                }
+
+                @Override
                 public Player choosePlayer(WhitePlayer whitePlayer, BlackPlayer blackPlayer)
                 {
                     return blackPlayer;
@@ -65,6 +77,7 @@ public enum Alliance
     public abstract int getDirection();
     public abstract boolean isBlack();
     public abstract boolean isWhite();
+    public abstract boolean isPawnPromotionSquare(Coordinate coordinate);
 
     public abstract Player choosePlayer(WhitePlayer whitePlayer, BlackPlayer blackPlayer);
 }

@@ -422,6 +422,71 @@ public abstract class Move
         }
     }
 
+    public static class PawnPromotion extends Move
+    {
+        final Move decoratedMove;
+        final Pawn promotedPawn;
+
+        public PawnPromotion(final Move decoratedMove)
+        {
+            super(decoratedMove.board, decoratedMove.getMovedPiece(), decoratedMove.getDestinationCoordinate());
+
+            this.decoratedMove = decoratedMove;
+            this.promotedPawn = (Pawn)decoratedMove.getMovedPiece();
+        }
+
+        @Override
+        public Board execute()
+        {
+            final Board pawnMovedBoard = this.decoratedMove.execute();
+            final Builder builder = new Builder();
+
+            for (Piece piece : pawnMovedBoard.getCurrentPlayer().getActivePieces())
+            {
+                if (!this.promotedPawn.equals(piece))
+                    builder.setPiece(piece);
+            }
+
+            for (Piece piece : pawnMovedBoard.getCurrentPlayer().getOpponent().getActivePieces())
+                builder.setPiece(piece);
+
+            builder.setPiece(promotedPawn.getPromotionPiece().movePiece(this));
+            builder.setMoveMarker(pawnMovedBoard.getCurrentPlayer().getAlliance());
+
+            return builder.build();
+        }
+
+        @Override
+        public boolean isAttacked()
+        {
+            return this.decoratedMove.isAttacked();
+        }
+
+        @Override
+        public Piece getAttackedPiece()
+        {
+            return this.getAttackedPiece();
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return decoratedMove.hashCode() + (31 * promotedPawn.hashCode());
+        }
+
+        @Override
+        public boolean equals(Object other)
+        {
+            return this == other || other instanceof PawnPromotion && super.equals(other);
+        }
+
+        @Override
+        public String toString()
+        {
+            return "";
+        }
+    }
+
     public static final class NullMove extends Move
     {
         public NullMove()
