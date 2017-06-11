@@ -335,7 +335,15 @@ public class Table
         {
             if (humanMovePiece != null && humanMovePiece.getAlliance() == board.getCurrentPlayer().getAlliance())
             {
-                return humanMovePiece.calculateLegalMoves(board);
+                Collection<Move> allLegalMoves = board.getCurrentPlayer().getLegalMoves();
+                Collection<Move> currentLegalMoves = new ArrayList<>();
+
+                for (Move move : allLegalMoves)
+                {
+                    if (move.getMovedPiece().equals(humanMovePiece))
+                        currentLegalMoves.add(move);
+                }
+                return currentLegalMoves;
             }
 
             return Collections.emptyList();
