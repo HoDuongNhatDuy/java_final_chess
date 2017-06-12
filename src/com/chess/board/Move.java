@@ -465,7 +465,7 @@ public abstract class Move
         @Override
         public Piece getAttackedPiece()
         {
-            return this.getAttackedPiece();
+            return this.decoratedMove.getAttackedPiece();
         }
 
         @Override
