@@ -8,7 +8,6 @@ import com.chess.board.Tile;
 import com.chess.network.Partner;
 import com.chess.pieces.Piece;
 import com.chess.player.MoveTransition;
-import javafx.scene.control.Tab;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -71,6 +70,7 @@ public class Table
     JRadioButtonMenuItem vsAI;
 
     Partner partner;
+    boolean isWaitingForLAN = false;
 
     private Table () throws IOException
     {
@@ -353,6 +353,11 @@ public class Table
                 @Override
                 public void mouseClicked(final MouseEvent e)
                 {
+                }
+
+                @Override
+                public void mousePressed(final MouseEvent e)
+                {
                     if (isRightMouseButton(e))
                     {
                         System.out.println("Right click");
@@ -414,22 +419,20 @@ public class Table
 
                             if (vsType.isVsLan() && transition.getMoveStatus().isDone())
                             {
-                                SolveLANMove();
+                                isWaitingForLAN = true;
                             }
                         }
                     }
                 }
 
                 @Override
-                public void mousePressed(final MouseEvent e)
-                {
-
-                }
-
-                @Override
                 public void mouseReleased(final MouseEvent e)
                 {
-
+                    if (vsType.isVsLan() && isWaitingForLAN)
+                    {
+                        SolveLANMove();
+                        isWaitingForLAN = false;
+                    }
                 }
 
                 @Override
