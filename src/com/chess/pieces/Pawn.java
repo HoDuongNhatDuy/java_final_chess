@@ -49,7 +49,13 @@ public class Pawn extends Piece
                 }
             }
         }
-        if (this.isFirstMove && ((this.getAlliance().isWhite() && this.getCoordinate().getY() == 1) || (this.getAlliance().isBlack() && this.getCoordinate().getY() == 6)))
+        if (
+                this.isFirstMove &&
+                (
+                        (this.getAlliance().isWhite() && this.getCoordinate().getY() == 1 && !board.getTile(new Coordinate(this.getCoordinate().getX(), 2)).isOccupied()) ||
+                        (this.getAlliance().isBlack() && this.getCoordinate().getY() == 6 && !board.getTile(new Coordinate(this.getCoordinate().getX(), 5)).isOccupied())
+                )
+                )
         {
             Coordinate firstStraightMoveCoordinate = new Coordinate(this.coordinate.getX(), this.coordinate.getY() + 2 * this.alliance.getDirection());
 
