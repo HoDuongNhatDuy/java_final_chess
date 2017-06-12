@@ -8,6 +8,7 @@ import com.chess.board.Tile;
 import com.chess.network.Partner;
 import com.chess.pieces.Piece;
 import com.chess.player.MoveTransition;
+import javafx.scene.control.Tab;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -51,6 +52,19 @@ public class Table
 
     private final static String PIECE_ICON_PATH = "art/fancy/";
 
+    private static Table INSTANCE = null;
+
+    static
+    {
+        try
+        {
+            INSTANCE = new Table();
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
     ButtonGroup groupVsMenuItem;
     JRadioButtonMenuItem vsHuman;
     JRadioButtonMenuItem vsLan;
@@ -58,7 +72,7 @@ public class Table
 
     Partner partner;
 
-    public Table () throws IOException
+    private Table () throws IOException
     {
         this.gameFrame = new JFrame("Chess");
         this.gameFrame.setLayout(new BorderLayout());
@@ -83,6 +97,16 @@ public class Table
         this.gameFrame.add(this.gameHistoryPanel, BorderLayout.EAST);
 
         this.gameFrame.setVisible(true);
+    }
+
+    public static Table get()
+    {
+        return INSTANCE;
+    }
+
+    public void show()
+    {
+        updateBoard();
     }
 
     private JMenuBar populateMenuBar()
@@ -570,20 +594,6 @@ public class Table
         }
 
         System.out.println(chessBoard);
-    }
-
-    class UpdateBoardThread extends Thread
-    {
-        UpdateBoardThread() {
-
-            super("Update Board Thread");
-            System.out.println("Update Board Thread: " + this);
-        }
-
-        @Override
-        public void run() {
-
-        }
     }
 }
 

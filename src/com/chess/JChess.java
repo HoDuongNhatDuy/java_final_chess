@@ -11,6 +11,6 @@ public class JChess
 {
     static public void main(String[] args) throws IOException
     {
-        Table table = new Table();
+        Table.get().show();
     }
 }
