@@ -1,20 +1,18 @@
 package com.chess.gui;
 
+import com.chess.Alliance;
 import com.chess.Coordinate;
 import com.chess.board.Board;
 import com.chess.board.Move;
 import com.chess.board.Tile;
+import com.chess.network.Partner;
 import com.chess.pieces.Piece;
 import com.chess.player.MoveTransition;
 
 import javax.imageio.ImageIO;
-import javax.management.Notification;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +31,9 @@ public class Table
     private final BoardPanel boardPanel;
     private Board chessBoard;
 
+    private VsType vsType;
+    private boolean isFlipped;
+
     private final GameHistoryPanel gameHistoryPanel;
     private final TakenPiecesPanel takenPiecesPanel;
     private final MoveLog moveLog;
@@ -50,6 +51,13 @@ public class Table
 
     private final static String PIECE_ICON_PATH = "art/fancy/";
 
+    ButtonGroup groupVsMenuItem;
+    JRadioButtonMenuItem vsHuman;
+    JRadioButtonMenuItem vsLan;
+    JRadioButtonMenuItem vsAI;
+
+    Partner partner;
+
     public Table () throws IOException
     {
         this.gameFrame = new JFrame("Chess");
@@ -58,7 +66,10 @@ public class Table
         final JMenuBar tableMenuBar = populateMenuBar();
         this.gameFrame.setJMenuBar(tableMenuBar);
 
-        this.chessBoard = Board.createStandardBoard();
+        vsType = VsType.HUMAN;
+        isFlipped = false;
+
+        this.chessBoard = Board.createStandardBoard(Alliance.WHITE);
 
         this.gameHistoryPanel = new GameHistoryPanel();
         this.takenPiecesPanel = new TakenPiecesPanel();
@@ -86,19 +97,61 @@ public class Table
     {
         final JMenu fileMenu = new JMenu("File");
 
-        // load pgn
-        final JMenuItem openPGN = new JMenuItem("Load PGN File");
+        groupVsMenuItem = new ButtonGroup();
 
-        openPGN.addActionListener(new ActionListener()
+        vsHuman = new JRadioButtonMenuItem("Human");
+        vsHuman.setSelected(true);
+        groupVsMenuItem.add(vsHuman);
+        fileMenu.add(vsHuman);
+
+        vsLan = new JRadioButtonMenuItem("LAN");
+        vsLan.setSelected(true);
+        groupVsMenuItem.add(vsLan);
+        fileMenu.add(vsLan);
+
+        vsAI = new JRadioButtonMenuItem("AI");
+        vsAI.setSelected(true);
+        groupVsMenuItem.add(vsAI);
+        fileMenu.add(vsAI);
+
+        vsHuman.addItemListener(new ItemListener()
         {
             @Override
-            public void actionPerformed(ActionEvent e)
+            public void itemStateChanged(ItemEvent e)
             {
-                System.out.println("Open pgn file");
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    vsType = VsType.HUMAN;
+                    try
+                    {
+                        isFlipped = false;
+                        restart();
+                    } catch (Exception e1)
+                    {
+                        e1.printStackTrace();
+                    }
+                }
             }
         });
 
-        fileMenu.add(openPGN);
+        vsLan.addItemListener(new ItemListener()
+        {
+            @Override
+            public void itemStateChanged(ItemEvent e)
+            {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    vsType = VsType.LAN;
+                    try
+                    {
+                        restart();
+                    } catch (Exception e1)
+                    {
+                        e1.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        fileMenu.addSeparator();
 
         // Exit
         final JMenuItem exitMenuItem = new JMenuItem("Exit");
@@ -113,6 +166,73 @@ public class Table
         fileMenu.add(exitMenuItem);
 
         return fileMenu;
+    }
+
+    enum VsType{
+        HUMAN
+                {
+                    @Override
+                    public boolean isVsHuman()
+                    {
+                        return true;
+                    }
+
+                    @Override
+                    public boolean isVsLan()
+                    {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isVsAI()
+                    {
+                        return false;
+                    }
+                },
+        LAN
+                {
+                    @Override
+                    public boolean isVsHuman()
+                    {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isVsLan()
+                    {
+                        return true;
+                    }
+
+                    @Override
+                    public boolean isVsAI()
+                    {
+                        return false;
+                    }
+                },
+        AI
+                {
+                    @Override
+                    public boolean isVsHuman()
+                    {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isVsLan()
+                    {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isVsAI()
+                    {
+                        return true;
+                    }
+                };
+
+        public abstract boolean isVsHuman();
+        public abstract boolean isVsLan();
+        public abstract boolean isVsAI();
     }
 
     private class BoardPanel extends JPanel
@@ -216,6 +336,8 @@ public class Table
                         sourceTile = null;
                         humanMovePiece = null;
                         destinationTile = null;
+
+                        updateBoard();
                     }
                     else if (isLeftMouseButton(e))
                     {
@@ -227,6 +349,8 @@ public class Table
                             humanMovePiece = sourceTile.getPiece();
                             if (humanMovePiece == null)
                                 sourceTile = null;
+
+                            updateBoard();
                         }
                         else    // second click
                         {
@@ -239,6 +363,11 @@ public class Table
                             {
                                 chessBoard = transition.getTransitionBoard();
                                 moveLog.add(move);
+
+                                if (vsType.isVsLan())
+                                {
+                                    partner.sendMoveCoordinate(sourceTile.getCoordinate(), destinationTile.getCoordinate());
+                                }
                             }
                             sourceTile = null;
                             humanMovePiece = null;
@@ -248,28 +377,23 @@ public class Table
                             {
                                 JOptionPane.showMessageDialog(gameFrame, chessBoard.getCurrentPlayer().getOpponent().toString() + " won");
 
-                                chessBoard = Board.createStandardBoard();
-                                moveLog.clear();
+                                try
+                                {
+                                    restart();
+                                } catch (Exception e1)
+                                {
+                                    e1.printStackTrace();
+                                }
+
+                            }
+                            updateBoard();
+
+                            if (vsType.isVsLan() && transition.getMoveStatus().isDone())
+                            {
+                                SolveLANMove();
                             }
                         }
                     }
-                    SwingUtilities.invokeLater(new Runnable()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            try
-                            {
-                                gameHistoryPanel.redo(chessBoard, moveLog);
-                                takenPiecesPanel.redo(moveLog);
-
-                                boardPanel.drawBoard(chessBoard);
-                            } catch (IOException e1)
-                            {
-                                e1.printStackTrace();
-                            }
-                        }
-                    });
                 }
 
                 @Override
@@ -317,12 +441,15 @@ public class Table
 
             if (board.getTile(this.coordinate).isOccupied())
             {
-                final BufferedImage image =
-                        ImageIO.read(new File(
-                                PIECE_ICON_PATH +
-                                        board.getTile(this.coordinate).getPiece().getAlliance().toString().substring(0, 1) +
-                                        board.getTile(this.coordinate).getPiece().toString() + ".gif"));
+                Piece piece = board.getTile(this.coordinate).getPiece();
+                Alliance alliance = piece.getAlliance();
 
+                if (vsType.isVsLan() && partner != null && partner.getAlliance().isWhite())
+                {
+                    alliance = alliance.getOpposite();
+                }
+
+                final BufferedImage image = ImageIO.read(new File(PIECE_ICON_PATH + alliance.toString().substring(0, 1) + piece.toString() + ".gif"));
 
                 add(new JLabel(new ImageIcon(image)));
             }
@@ -366,4 +493,97 @@ public class Table
                 setBackground(DARK_TILE_COLOR);
         }
     }
+
+    private void SolveLANMove()
+    {
+        System.out.println("LAN move");
+
+        Coordinate[] moves= partner.getMoveCoordinate();
+
+        Coordinate from = moves[0];
+        Coordinate to = moves[1];
+
+        final Move move = Move.MoveFactory.createMove(chessBoard, from, to);
+        final MoveTransition transition = chessBoard.getCurrentPlayer().makeMove(move);
+        if (transition.getMoveStatus().isDone())
+        {
+            chessBoard = transition.getTransitionBoard();
+            moveLog.add(move);
+        }
+
+        if (chessBoard.getCurrentPlayer().isInCheckMate() || chessBoard.getCurrentPlayer().isInStaleMate())
+        {
+            JOptionPane.showMessageDialog(gameFrame, chessBoard.getCurrentPlayer().getOpponent().toString() + " won");
+
+            try
+            {
+                restart();
+            } catch (Exception e1)
+            {
+                e1.printStackTrace();
+            }
+        }
+
+        updateBoard();
+    }
+
+    void updateBoard()
+    {
+        SwingUtilities.invokeLater(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                try
+                {
+                    gameHistoryPanel.redo(chessBoard, moveLog);
+                    takenPiecesPanel.redo(moveLog, isFlipped);
+
+                    boardPanel.drawBoard(chessBoard);
+                } catch (IOException e1)
+                {
+                    e1.printStackTrace();
+                }
+            }
+        });
+    }
+
+    private void restart() throws Exception
+    {
+        moveLog.clear();
+        if (vsType.isVsLan())
+        {
+            partner = new Partner();
+            chessBoard = Board.createStandardBoard(partner.getAlliance().getOpposite());
+            updateBoard();
+
+            if (partner.getAlliance().isWhite()) // wait for white turn
+            {
+                this.isFlipped = true;
+                SolveLANMove();
+            }
+        }
+        else if (vsType.isVsHuman())
+        {
+            chessBoard = Board.createStandardBoard(Alliance.WHITE);
+            updateBoard();
+        }
+
+        System.out.println(chessBoard);
+    }
+
+    class UpdateBoardThread extends Thread
+    {
+        UpdateBoardThread() {
+
+            super("Update Board Thread");
+            System.out.println("Update Board Thread: " + this);
+        }
+
+        @Override
+        public void run() {
+
+        }
+    }
 }
+

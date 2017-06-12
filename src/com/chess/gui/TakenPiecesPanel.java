@@ -1,5 +1,6 @@
 package com.chess.gui;
 
+import com.chess.Alliance;
 import com.chess.board.Move;
 import com.chess.pieces.Piece;
 
@@ -50,7 +51,7 @@ public class TakenPiecesPanel extends JPanel
         setPreferredSize(TAKEN_PIECES_DIMENSION);
     }
 
-    public void redo(final MoveLog moveLog) throws IOException
+    public void redo(final MoveLog moveLog, boolean isFlipped) throws IOException
     {
         southPanel.removeAll();
         northPanel.removeAll();
@@ -94,10 +95,14 @@ public class TakenPiecesPanel extends JPanel
 
         for (Piece takenPiece : whiteTakenPieces)
         {
+            Alliance alliance = takenPiece.getAlliance();
+            if (isFlipped)
+                alliance = alliance.getOpposite();
+
             final BufferedImage image =
                     ImageIO.read(new File(
                             PIECE_ICON_PATH +
-                                    takenPiece.getAlliance().toString().substring(0, 1) +
+                                    alliance.toString().substring(0, 1) +
                                     takenPiece.toString() + ".gif"));
 
             Image newimg = image.getScaledInstance(30, 30,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
@@ -109,10 +114,14 @@ public class TakenPiecesPanel extends JPanel
 
         for (Piece takenPiece : blackTakenPieces)
         {
+            Alliance alliance = takenPiece.getAlliance();
+            if (isFlipped)
+                alliance = alliance.getOpposite();
+
             final BufferedImage image =
                     ImageIO.read(new File(
                             PIECE_ICON_PATH +
-                                    takenPiece.getAlliance().toString().substring(0, 1) +
+                                    alliance.toString().substring(0, 1) +
                                     takenPiece.toString() + ".gif"));
 
             Image newimg = image.getScaledInstance(30, 30,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way

@@ -30,9 +30,26 @@ public enum Alliance
                 }
 
                 @Override
+                public int kingX()
+                {
+                    return 4;
+                }
+
+                @Override
+                public int queenX()
+                {
+                    return 3;
+                }
+                @Override
                 public boolean isPawnPromotionSquare(Coordinate coordinate)
                 {
                     return coordinate.getY() == 7;
+                }
+
+                @Override
+                public Alliance getOpposite()
+                {
+                    return Alliance.BLACK;
                 }
 
                 @Override
@@ -62,9 +79,26 @@ public enum Alliance
                 }
 
                 @Override
+                public int kingX()
+                {
+                    return 3;
+                }
+
+                @Override
+                public int queenX()
+                {
+                    return 4;
+                }
+                @Override
                 public boolean isPawnPromotionSquare(Coordinate coordinate)
                 {
                     return coordinate.getY() == 0;
+                }
+
+                @Override
+                public Alliance getOpposite()
+                {
+                    return Alliance.WHITE;
                 }
 
                 @Override
@@ -77,7 +111,9 @@ public enum Alliance
     public abstract int getDirection();
     public abstract boolean isBlack();
     public abstract boolean isWhite();
+    public abstract int kingX();
+    public abstract int queenX();
     public abstract boolean isPawnPromotionSquare(Coordinate coordinate);
-
+    public abstract Alliance getOpposite();
     public abstract Player choosePlayer(WhitePlayer whitePlayer, BlackPlayer blackPlayer);
 }

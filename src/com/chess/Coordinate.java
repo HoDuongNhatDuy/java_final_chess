@@ -17,6 +17,23 @@ public class Coordinate
         this.y = y;
     }
 
+    /*
+    *  "x-y"
+    * */
+    public Coordinate(String coordinateString)
+    {
+        String[] map = coordinateString.split("-");
+
+        if (map.length != 2)
+        {
+            this.x = -1;
+            this.y = -1;
+        }
+
+        this.x = Integer.valueOf(map[0]);
+        this.y = Integer.valueOf(map[1]);
+    }
+
     public int getX()
     {
         return x;
@@ -63,5 +80,11 @@ public class Coordinate
         final Coordinate otherCoordinate = (Coordinate)other;
 
         return this.x == otherCoordinate.x && this.y == otherCoordinate.y;
+    }
+
+    @Override
+    public String toString()
+    {
+        return "(" + x + ", " + y + ")";
     }
 }
