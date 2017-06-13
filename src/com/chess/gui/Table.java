@@ -368,8 +368,6 @@ public class Table {
                                 chessBoard = transition.getTransitionBoard();
                                 setTurnSign(chessBoard.getCurrentPlayer().getAlliance());
 
-                                if (chessBoard.getCurrentPlayer().getAlliance().isWhite())
-
                                 moveLog.add(move);
 
                                 if (vsType.isVsLan()) {
