@@ -390,7 +390,11 @@ public class Table {
                 @Override
                 public void mouseReleased(final MouseEvent e) {
                     if (vsType.isVsLan() && isWaitingForLAN) {
-                        solveLANMove();
+                        try {
+                            solveLANMove();
+                        } catch (Exception e1) {
+                            e1.printStackTrace();
+                        }
                         isWaitingForLAN = false;
                     } else if (vsType.isVsAI()) {
                         solveAIMove();
@@ -470,10 +474,17 @@ public class Table {
         }
     }
 
-    private void solveLANMove() {
+    private void solveLANMove() throws Exception {
         System.out.println("LAN move");
 
         Coordinate[] moves = partner.getMoveCoordinate();
+
+        if (moves == null) { // opponent has gone!!
+            JOptionPane.showMessageDialog(gameFrame, "Your opponent has gone");
+            vsHuman.setSelected(true);
+
+            return;
+        }
 
         Coordinate from = moves[0];
         Coordinate to = moves[1];
@@ -566,6 +577,13 @@ public class Table {
             }
         } else if (vsType.isVsHuman()) {
             chessBoard = Board.createStandardBoard(Alliance.WHITE);
+
+            if (partner != null){ // change from vsLAN
+                partner.sendGaveUpMessage();
+                partner.destroy();
+                partner = null;
+            }
+
             updateBoard();
         } else if (vsType.isVsAI()){
             bot = new AIPlayer();

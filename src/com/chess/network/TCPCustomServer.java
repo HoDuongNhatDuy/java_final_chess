@@ -26,4 +26,11 @@ public class TCPCustomServer extends TCPCustom
         System.out.println("Client found");
         return partner;
     }
+
+    @Override
+    public void destroy() throws IOException {
+        System.out.println("Destroy server");
+        serverSocket.close();
+        super.destroy();
+    }
 }

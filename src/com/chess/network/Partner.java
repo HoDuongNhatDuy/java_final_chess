@@ -53,7 +53,8 @@ public class Partner
     {
         String message = connection.getMessage();
 
-        System.out.println("Get move: " + message);
+        if (message.equals(""))
+            return null;
 
         String[] map = message.split("--");
 
@@ -72,8 +73,17 @@ public class Partner
 
         String message = fromX + "-" + fromY + "--" + toX + "-" + toY;
 
-        System.out.println("Send move: " + message);
-
         connection.sendMessage(message);
+    }
+
+    public void sendGaveUpMessage()
+    {
+        System.out.println("I gave up");
+
+        connection.sendMessage("");
+    }
+
+    public void destroy() throws IOException {
+        connection.destroy();
     }
 }
