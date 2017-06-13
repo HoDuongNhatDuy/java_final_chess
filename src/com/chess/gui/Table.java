@@ -36,6 +36,8 @@ public class Table {
 
     private final GameHistoryPanel gameHistoryPanel;
     private final TakenPiecesPanel takenPiecesPanel;
+    private final JPanel myTurnSignPannel;
+    private final JPanel opponentTurnSignPannel;
     private final MoveLog moveLog;
 
     private Tile sourceTile;
@@ -45,6 +47,7 @@ public class Table {
     private static Dimension OUTER_FRAME_DIMENSION = new Dimension(600, 600);
     private final static Dimension BOARD_PANEL_DIMENSION = new Dimension(400, 350);
     private final static Dimension TILE_PANEL_DIMENSION = new Dimension(10, 10);
+    private final static Dimension TURN_SIGN_PANEL_DIMENSION = new Dimension(400, 5);
 
     private final static Color DARK_TILE_COLOR = new Color(107, 55, 5);
     private final static Color LIGHT_TILE_COLOR = new Color(255, 252, 210);
@@ -84,7 +87,12 @@ public class Table {
 
         this.gameHistoryPanel = new GameHistoryPanel();
         this.takenPiecesPanel = new TakenPiecesPanel();
+        this.myTurnSignPannel = new JPanel();
+        this.opponentTurnSignPannel = new JPanel();
         this.moveLog = new MoveLog();
+
+        this.myTurnSignPannel.setPreferredSize(TURN_SIGN_PANEL_DIMENSION);
+        this.opponentTurnSignPannel.setPreferredSize(TURN_SIGN_PANEL_DIMENSION);
 
         this.gameFrame.setSize(OUTER_FRAME_DIMENSION);
 
@@ -92,6 +100,10 @@ public class Table {
         this.gameFrame.add(this.takenPiecesPanel, BorderLayout.WEST);
         this.gameFrame.add(this.boardPanel, BorderLayout.CENTER);
         this.gameFrame.add(this.gameHistoryPanel, BorderLayout.EAST);
+        this.gameFrame.add(this.myTurnSignPannel, BorderLayout.SOUTH);
+        this.gameFrame.add(this.opponentTurnSignPannel, BorderLayout.NORTH);
+
+        setTurnSign(chessBoard.getCurrentPlayer().getAlliance());
 
         this.gameFrame.setVisible(true);
     }
@@ -354,6 +366,10 @@ public class Table {
                             final MoveTransition transition = chessBoard.getCurrentPlayer().makeMove(move);
                             if (transition.getMoveStatus().isDone()) {
                                 chessBoard = transition.getTransitionBoard();
+                                setTurnSign(chessBoard.getCurrentPlayer().getAlliance());
+
+                                if (chessBoard.getCurrentPlayer().getAlliance().isWhite())
+
                                 moveLog.add(move);
 
                                 if (vsType.isVsLan()) {
@@ -493,6 +509,8 @@ public class Table {
         final MoveTransition transition = chessBoard.getCurrentPlayer().makeMove(move);
         if (transition.getMoveStatus().isDone()) {
             chessBoard = transition.getTransitionBoard();
+            setTurnSign(chessBoard.getCurrentPlayer().getAlliance());
+
             moveLog.add(move);
         }
 
@@ -526,6 +544,8 @@ public class Table {
         final MoveTransition transition = chessBoard.getCurrentPlayer().makeMove(move);
         if (transition.getMoveStatus().isDone()) {
             chessBoard = transition.getTransitionBoard();
+            setTurnSign(chessBoard.getCurrentPlayer().getAlliance());
+
             moveLog.add(move);
         }
 
@@ -568,6 +588,8 @@ public class Table {
             if (partner == null)
                 partner = new Partner();
             chessBoard = Board.createStandardBoard(partner.getAlliance().getOpposite());
+            setTurnSign(chessBoard.getCurrentPlayer().getAlliance());
+
             updateBoard();
 
             if (partner.getAlliance().isWhite()) // wait for white turn
@@ -577,6 +599,7 @@ public class Table {
             }
         } else if (vsType.isVsHuman()) {
             chessBoard = Board.createStandardBoard(Alliance.WHITE);
+            setTurnSign(chessBoard.getCurrentPlayer().getAlliance());
 
             if (partner != null){ // change from vsLAN
                 partner.sendGaveUpMessage();
@@ -588,10 +611,23 @@ public class Table {
         } else if (vsType.isVsAI()){
             bot = new AIPlayer();
             chessBoard = Board.createStandardBoard(Alliance.WHITE);
+            setTurnSign(chessBoard.getCurrentPlayer().getAlliance());
+
             updateBoard();
         }
 
         System.out.println(chessBoard);
+    }
+
+    void setTurnSign(Alliance alliance){
+        if (alliance.isWhite()) {
+            myTurnSignPannel.setBackground(new Color(0, 255, 0));
+            opponentTurnSignPannel.setBackground(null);
+        }
+        else {
+            opponentTurnSignPannel.setBackground(new Color(0, 255, 0));
+            myTurnSignPannel.setBackground(null);
+        }
     }
 }
 
