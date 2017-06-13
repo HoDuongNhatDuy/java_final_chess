@@ -390,7 +390,7 @@ public class Table {
                 @Override
                 public void mouseReleased(final MouseEvent e) {
                     if (vsType.isVsLan() && isWaitingForLAN) {
-                        SolveLANMove();
+                        solveLANMove();
                         isWaitingForLAN = false;
                     } else if (vsType.isVsAI()) {
                         solveAIMove();
@@ -470,7 +470,7 @@ public class Table {
         }
     }
 
-    private void SolveLANMove() {
+    private void solveLANMove() {
         System.out.println("LAN move");
 
         Coordinate[] moves = partner.getMoveCoordinate();
@@ -562,7 +562,7 @@ public class Table {
             if (partner.getAlliance().isWhite()) // wait for white turn
             {
                 this.isFlipped = true;
-                SolveLANMove();
+                solveLANMove();
             }
         } else if (vsType.isVsHuman()) {
             chessBoard = Board.createStandardBoard(Alliance.WHITE);
