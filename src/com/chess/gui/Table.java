@@ -66,7 +66,7 @@ public class Table {
     JRadioButtonMenuItem vsLan;
     JRadioButtonMenuItem vsAI;
 
-    Partner partner;
+    Partner partner = null;
     AIPlayer bot;
     boolean isWaitingForLAN = false;
 
@@ -364,21 +364,25 @@ public class Table {
                             humanMovePiece = null;
                             destinationTile = null;
 
+                            if (vsType.isVsLan() && transition.getMoveStatus().isDone()) {
+                                isWaitingForLAN = true;
+                            }
+
                             if (chessBoard.getCurrentPlayer().isInCheckMate() || chessBoard.getCurrentPlayer().isInStaleMate()) {
-                                JOptionPane.showMessageDialog(gameFrame, chessBoard.getCurrentPlayer().getOpponent().toString() + " won");
+                                if (!isFlipped)
+                                    JOptionPane.showMessageDialog(gameFrame, chessBoard.getCurrentPlayer().getOpponent().toString() + " won");
+                                else
+                                    JOptionPane.showMessageDialog(gameFrame, chessBoard.getCurrentPlayer().toString() + " won");
 
                                 try {
                                     restart();
+                                    isWaitingForLAN = false;
                                 } catch (Exception e1) {
                                     e1.printStackTrace();
                                 }
 
                             }
                             updateBoard();
-
-                            if (vsType.isVsLan() && transition.getMoveStatus().isDone()) {
-                                isWaitingForLAN = true;
-                            }
                         }
                     }
                 }
@@ -482,7 +486,11 @@ public class Table {
         }
 
         if (chessBoard.getCurrentPlayer().isInCheckMate() || chessBoard.getCurrentPlayer().isInStaleMate()) {
-            JOptionPane.showMessageDialog(gameFrame, chessBoard.getCurrentPlayer().getOpponent().toString() + " won");
+
+            if (!isFlipped)
+                JOptionPane.showMessageDialog(gameFrame, chessBoard.getCurrentPlayer().getOpponent().toString() + " won");
+            else
+                JOptionPane.showMessageDialog(gameFrame, chessBoard.getCurrentPlayer().toString() + " won");
 
             try {
                 restart();
@@ -511,7 +519,10 @@ public class Table {
         }
 
         if (chessBoard.getCurrentPlayer().isInCheckMate() || chessBoard.getCurrentPlayer().isInStaleMate()) {
-            JOptionPane.showMessageDialog(gameFrame, chessBoard.getCurrentPlayer().getOpponent().toString() + " won");
+            if (!isFlipped)
+                JOptionPane.showMessageDialog(gameFrame, chessBoard.getCurrentPlayer().getOpponent().toString() + " won");
+            else
+                JOptionPane.showMessageDialog(gameFrame, chessBoard.getCurrentPlayer().toString() + " won");
 
             try {
                 restart();
@@ -543,7 +554,8 @@ public class Table {
     private void restart() throws Exception {
         moveLog.clear();
         if (vsType.isVsLan()) {
-            partner = new Partner();
+            if (partner == null)
+                partner = new Partner();
             chessBoard = Board.createStandardBoard(partner.getAlliance().getOpposite());
             updateBoard();
 
