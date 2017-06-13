@@ -7,6 +7,7 @@ import com.chess.board.Move;
 import com.chess.board.Tile;
 import com.chess.network.Partner;
 import com.chess.pieces.Piece;
+import com.chess.player.AIPlayer;
 import com.chess.player.MoveTransition;
 
 import javax.imageio.ImageIO;
@@ -25,8 +26,7 @@ import static javax.swing.SwingUtilities.isRightMouseButton;
 /**
  * Created by hoduo on 6/10/2017.
  */
-public class Table
-{
+public class Table {
     private final JFrame gameFrame;
     private final BoardPanel boardPanel;
     private Board chessBoard;
@@ -53,13 +53,10 @@ public class Table
 
     private static Table INSTANCE = null;
 
-    static
-    {
-        try
-        {
+    static {
+        try {
             INSTANCE = new Table();
-        } catch (IOException e)
-        {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -70,10 +67,10 @@ public class Table
     JRadioButtonMenuItem vsAI;
 
     Partner partner;
+    AIPlayer bot;
     boolean isWaitingForLAN = false;
 
-    private Table () throws IOException
-    {
+    private Table() throws IOException {
         this.gameFrame = new JFrame("Chess");
         this.gameFrame.setLayout(new BorderLayout());
 
@@ -99,26 +96,22 @@ public class Table
         this.gameFrame.setVisible(true);
     }
 
-    public static Table get()
-    {
+    public static Table get() {
         return INSTANCE;
     }
 
-    public void show()
-    {
+    public void show() {
         updateBoard();
     }
 
-    private JMenuBar populateMenuBar()
-    {
+    private JMenuBar populateMenuBar() {
         final JMenuBar tableMenuBar = new JMenuBar();
         tableMenuBar.add(createFileMenu());
 
         return tableMenuBar;
     }
 
-    private JMenu createFileMenu()
-    {
+    private JMenu createFileMenu() {
         final JMenu fileMenu = new JMenu("File");
 
         groupVsMenuItem = new ButtonGroup();
@@ -138,37 +131,43 @@ public class Table
         groupVsMenuItem.add(vsAI);
         fileMenu.add(vsAI);
 
-        vsHuman.addItemListener(new ItemListener()
-        {
+        vsHuman.addItemListener(new ItemListener() {
             @Override
-            public void itemStateChanged(ItemEvent e)
-            {
+            public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     vsType = VsType.HUMAN;
-                    try
-                    {
+                    try {
                         isFlipped = false;
                         restart();
-                    } catch (Exception e1)
-                    {
+                    } catch (Exception e1) {
                         e1.printStackTrace();
                     }
                 }
             }
         });
 
-        vsLan.addItemListener(new ItemListener()
-        {
+        vsLan.addItemListener(new ItemListener() {
             @Override
-            public void itemStateChanged(ItemEvent e)
-            {
+            public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
                     vsType = VsType.LAN;
-                    try
-                    {
+                    try {
                         restart();
-                    } catch (Exception e1)
-                    {
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        vsAI.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    vsType = VsType.AI;
+                    try {
+                        restart();
+                    } catch (Exception e1) {
                         e1.printStackTrace();
                     }
                 }
@@ -179,11 +178,9 @@ public class Table
 
         // Exit
         final JMenuItem exitMenuItem = new JMenuItem("Exit");
-        exitMenuItem.addActionListener(new ActionListener()
-        {
+        exitMenuItem.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e)
-            {
+            public void actionPerformed(ActionEvent e) {
                 System.exit(0);
             }
         });
@@ -192,86 +189,72 @@ public class Table
         return fileMenu;
     }
 
-    enum VsType{
-        HUMAN
-                {
-                    @Override
-                    public boolean isVsHuman()
-                    {
-                        return true;
-                    }
+    enum VsType {
+        HUMAN {
+            @Override
+            public boolean isVsHuman() {
+                return true;
+            }
 
-                    @Override
-                    public boolean isVsLan()
-                    {
-                        return false;
-                    }
+            @Override
+            public boolean isVsLan() {
+                return false;
+            }
 
-                    @Override
-                    public boolean isVsAI()
-                    {
-                        return false;
-                    }
-                },
-        LAN
-                {
-                    @Override
-                    public boolean isVsHuman()
-                    {
-                        return false;
-                    }
+            @Override
+            public boolean isVsAI() {
+                return false;
+            }
+        },
+        LAN {
+            @Override
+            public boolean isVsHuman() {
+                return false;
+            }
 
-                    @Override
-                    public boolean isVsLan()
-                    {
-                        return true;
-                    }
+            @Override
+            public boolean isVsLan() {
+                return true;
+            }
 
-                    @Override
-                    public boolean isVsAI()
-                    {
-                        return false;
-                    }
-                },
-        AI
-                {
-                    @Override
-                    public boolean isVsHuman()
-                    {
-                        return false;
-                    }
+            @Override
+            public boolean isVsAI() {
+                return false;
+            }
+        },
+        AI {
+            @Override
+            public boolean isVsHuman() {
+                return false;
+            }
 
-                    @Override
-                    public boolean isVsLan()
-                    {
-                        return false;
-                    }
+            @Override
+            public boolean isVsLan() {
+                return false;
+            }
 
-                    @Override
-                    public boolean isVsAI()
-                    {
-                        return true;
-                    }
-                };
+            @Override
+            public boolean isVsAI() {
+                return true;
+            }
+        };
 
         public abstract boolean isVsHuman();
+
         public abstract boolean isVsLan();
+
         public abstract boolean isVsAI();
     }
 
-    private class BoardPanel extends JPanel
-    {
+    private class BoardPanel extends JPanel {
         private final List<TilePanel> boardTiles;
 
-        BoardPanel() throws IOException
-        {
+        BoardPanel() throws IOException {
             super(new GridLayout(8, 8));
             this.boardTiles = new ArrayList<>();
 
-            for (int y = 0; y < 8; y++)
-            {
-                for (int x = 0; x < 8; x++)
-                {
+            for (int y = 0; y < 8; y++) {
+                for (int x = 0; x < 8; x++) {
                     final TilePanel tilePanel = new TilePanel(this, new Coordinate(x, 7 - y));
                     this.boardTiles.add(tilePanel);
                     add(tilePanel);
@@ -282,11 +265,9 @@ public class Table
             validate();
         }
 
-        public void drawBoard(final Board board) throws IOException
-        {
+        public void drawBoard(final Board board) throws IOException {
             removeAll();
-            for (final TilePanel tilePanel : boardTiles)
-            {
+            for (final TilePanel tilePanel : boardTiles) {
                 tilePanel.drawTile(board);
                 add(tilePanel);
             }
@@ -296,70 +277,56 @@ public class Table
         }
     }
 
-    public static class MoveLog
-    {
+    public static class MoveLog {
         private final List<Move> moves;
 
-        public MoveLog()
-        {
+        public MoveLog() {
             this.moves = new ArrayList<>();
         }
 
-        public List<Move> getMoves()
-        {
+        public List<Move> getMoves() {
             return moves;
         }
 
-        public void add(final Move move)
-        {
+        public void add(final Move move) {
             moves.add(move);
         }
 
-        public int size()
-        {
+        public int size() {
             return moves.size();
         }
 
-        public void clear()
-        {
+        public void clear() {
             moves.clear();
         }
 
-        public Move remove(final int index)
-        {
+        public Move remove(final int index) {
             return moves.remove(index);
         }
 
-        public boolean remove(final Move move)
-        {
+        public boolean remove(final Move move) {
             return moves.remove(move);
         }
     }
 
-    private class TilePanel extends JPanel
-    {
+    private class TilePanel extends JPanel {
         private final Coordinate coordinate;
 
-        TilePanel(final BoardPanel boardPanel, final Coordinate coordinate) throws IOException
-        {
+        TilePanel(final BoardPanel boardPanel, final Coordinate coordinate) throws IOException {
             super(new GridLayout());
             this.coordinate = coordinate;
             setPreferredSize(TILE_PANEL_DIMENSION);
             assignColor();
             assignTilePieceIcon(chessBoard);
 
-            addMouseListener(new MouseListener()
-            {
+            addMouseListener(new MouseListener() {
                 @Override
-                public void mouseClicked(final MouseEvent e)
-                {
+                public void mouseClicked(final MouseEvent e) {
                 }
 
                 @Override
-                public void mousePressed(final MouseEvent e)
-                {
-                    if (isRightMouseButton(e))
-                    {
+                public void mousePressed(final MouseEvent e) {
+                    if (isRightMouseButton(e)) {
                         System.out.println("Right click");
 
                         sourceTile = null;
@@ -367,9 +334,7 @@ public class Table
                         destinationTile = null;
 
                         updateBoard();
-                    }
-                    else if (isLeftMouseButton(e))
-                    {
+                    } else if (isLeftMouseButton(e)) {
                         if (sourceTile == null)     // first click
                         {
                             System.out.println("Left first click");
@@ -380,21 +345,18 @@ public class Table
                                 sourceTile = null;
 
                             updateBoard();
-                        }
-                        else    // second click
+                        } else    // second click
                         {
                             System.out.println("Left second click");
 
                             destinationTile = chessBoard.getTile(coordinate);
                             final Move move = Move.MoveFactory.createMove(chessBoard, sourceTile.getCoordinate(), destinationTile.getCoordinate());
                             final MoveTransition transition = chessBoard.getCurrentPlayer().makeMove(move);
-                            if (transition.getMoveStatus().isDone())
-                            {
+                            if (transition.getMoveStatus().isDone()) {
                                 chessBoard = transition.getTransitionBoard();
                                 moveLog.add(move);
 
-                                if (vsType.isVsLan())
-                                {
+                                if (vsType.isVsLan()) {
                                     partner.sendMoveCoordinate(sourceTile.getCoordinate(), destinationTile.getCoordinate());
                                 }
                             }
@@ -402,23 +364,19 @@ public class Table
                             humanMovePiece = null;
                             destinationTile = null;
 
-                            if (chessBoard.getCurrentPlayer().isInCheckMate() || chessBoard.getCurrentPlayer().isInStaleMate())
-                            {
+                            if (chessBoard.getCurrentPlayer().isInCheckMate() || chessBoard.getCurrentPlayer().isInStaleMate()) {
                                 JOptionPane.showMessageDialog(gameFrame, chessBoard.getCurrentPlayer().getOpponent().toString() + " won");
 
-                                try
-                                {
+                                try {
                                     restart();
-                                } catch (Exception e1)
-                                {
+                                } catch (Exception e1) {
                                     e1.printStackTrace();
                                 }
 
                             }
                             updateBoard();
 
-                            if (vsType.isVsLan() && transition.getMoveStatus().isDone())
-                            {
+                            if (vsType.isVsLan() && transition.getMoveStatus().isDone()) {
                                 isWaitingForLAN = true;
                             }
                         }
@@ -426,24 +384,22 @@ public class Table
                 }
 
                 @Override
-                public void mouseReleased(final MouseEvent e)
-                {
-                    if (vsType.isVsLan() && isWaitingForLAN)
-                    {
+                public void mouseReleased(final MouseEvent e) {
+                    if (vsType.isVsLan() && isWaitingForLAN) {
                         SolveLANMove();
                         isWaitingForLAN = false;
+                    } else if (vsType.isVsAI()) {
+                        solveAIMove();
                     }
                 }
 
                 @Override
-                public void mouseEntered(final MouseEvent e)
-                {
+                public void mouseEntered(final MouseEvent e) {
 
                 }
 
                 @Override
-                public void mouseExited(final MouseEvent e)
-                {
+                public void mouseExited(final MouseEvent e) {
 
                 }
             });
@@ -451,8 +407,7 @@ public class Table
             validate();
         }
 
-        public void drawTile(final Board board) throws IOException
-        {
+        public void drawTile(final Board board) throws IOException {
             setBorder(BorderFactory.createEmptyBorder());
             assignColor();
             assignTilePieceIcon(board);
@@ -462,17 +417,14 @@ public class Table
             repaint();
         }
 
-        private void assignTilePieceIcon(final Board board) throws IOException
-        {
+        private void assignTilePieceIcon(final Board board) throws IOException {
             this.removeAll();
 
-            if (board.getTile(this.coordinate).isOccupied())
-            {
+            if (board.getTile(this.coordinate).isOccupied()) {
                 Piece piece = board.getTile(this.coordinate).getPiece();
                 Alliance alliance = piece.getAlliance();
 
-                if (vsType.isVsLan() && partner != null && partner.getAlliance().isWhite())
-                {
+                if (vsType.isVsLan() && partner != null && partner.getAlliance().isWhite()) {
                     alliance = alliance.getOpposite();
                 }
 
@@ -482,27 +434,21 @@ public class Table
             }
         }
 
-        private void highLightLegalMoves(final Board board) throws IOException
-        {
-            for (final Move move : pieceLegalMoves(board))
-            {
-                if (move.getDestinationCoordinate().equals(this.coordinate))
-                {
+        private void highLightLegalMoves(final Board board) throws IOException {
+            for (final Move move : pieceLegalMoves(board)) {
+                if (move.getDestinationCoordinate().equals(this.coordinate)) {
                     //add(new JLabel(new ImageIcon(ImageIO.read(new File("art/misc/green_dot.png")))));
                     setBorder(BorderFactory.createLineBorder(Color.GREEN, 2));
                 }
             }
         }
 
-        private Collection<Move> pieceLegalMoves(Board board)
-        {
-            if (humanMovePiece != null && humanMovePiece.getAlliance() == board.getCurrentPlayer().getAlliance())
-            {
+        private Collection<Move> pieceLegalMoves(Board board) {
+            if (humanMovePiece != null && humanMovePiece.getAlliance() == board.getCurrentPlayer().getAlliance()) {
                 Collection<Move> allLegalMoves = board.getCurrentPlayer().getLegalMoves();
                 Collection<Move> currentLegalMoves = new ArrayList<>();
 
-                for (Move move : allLegalMoves)
-                {
+                for (Move move : allLegalMoves) {
                     if (move.getMovedPiece().equals(humanMovePiece))
                         currentLegalMoves.add(move);
                 }
@@ -512,41 +458,35 @@ public class Table
             return Collections.emptyList();
         }
 
-        private void assignColor()
-        {
-            if ((this.coordinate.getX() + this.coordinate.getY()) % 2 == 0 )
+        private void assignColor() {
+            if ((this.coordinate.getX() + this.coordinate.getY()) % 2 == 0)
                 setBackground(LIGHT_TILE_COLOR);
             else
                 setBackground(DARK_TILE_COLOR);
         }
     }
 
-    private void SolveLANMove()
-    {
+    private void SolveLANMove() {
         System.out.println("LAN move");
 
-        Coordinate[] moves= partner.getMoveCoordinate();
+        Coordinate[] moves = partner.getMoveCoordinate();
 
         Coordinate from = moves[0];
         Coordinate to = moves[1];
 
         final Move move = Move.MoveFactory.createMove(chessBoard, from, to);
         final MoveTransition transition = chessBoard.getCurrentPlayer().makeMove(move);
-        if (transition.getMoveStatus().isDone())
-        {
+        if (transition.getMoveStatus().isDone()) {
             chessBoard = transition.getTransitionBoard();
             moveLog.add(move);
         }
 
-        if (chessBoard.getCurrentPlayer().isInCheckMate() || chessBoard.getCurrentPlayer().isInStaleMate())
-        {
+        if (chessBoard.getCurrentPlayer().isInCheckMate() || chessBoard.getCurrentPlayer().isInStaleMate()) {
             JOptionPane.showMessageDialog(gameFrame, chessBoard.getCurrentPlayer().getOpponent().toString() + " won");
 
-            try
-            {
+            try {
                 restart();
-            } catch (Exception e1)
-            {
+            } catch (Exception e1) {
                 e1.printStackTrace();
             }
         }
@@ -554,32 +494,55 @@ public class Table
         updateBoard();
     }
 
-    void updateBoard()
-    {
-        SwingUtilities.invokeLater(new Runnable()
-        {
+    private void solveAIMove() {
+        System.out.println("AI Move");
+
+        Coordinate[] moves = bot.getMoveCoordinate(chessBoard.getCurrentPlayer().getLegalMoves()
+                , chessBoard.getCurrentPlayer().getOpponent().getLegalMoves());
+
+        Coordinate from = moves[0];
+        Coordinate to = moves[1];
+
+        final Move move = Move.MoveFactory.createMove(chessBoard, from, to);
+        final MoveTransition transition = chessBoard.getCurrentPlayer().makeMove(move);
+        if (transition.getMoveStatus().isDone()) {
+            chessBoard = transition.getTransitionBoard();
+            moveLog.add(move);
+        }
+
+        if (chessBoard.getCurrentPlayer().isInCheckMate() || chessBoard.getCurrentPlayer().isInStaleMate()) {
+            JOptionPane.showMessageDialog(gameFrame, chessBoard.getCurrentPlayer().getOpponent().toString() + " won");
+
+            try {
+                restart();
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+        }
+
+        updateBoard();
+
+    }
+
+    void updateBoard() {
+        SwingUtilities.invokeLater(new Runnable() {
             @Override
-            public void run()
-            {
-                try
-                {
+            public void run() {
+                try {
                     gameHistoryPanel.redo(chessBoard, moveLog);
                     takenPiecesPanel.redo(moveLog, isFlipped);
 
                     boardPanel.drawBoard(chessBoard);
-                } catch (IOException e1)
-                {
+                } catch (IOException e1) {
                     e1.printStackTrace();
                 }
             }
         });
     }
 
-    private void restart() throws Exception
-    {
+    private void restart() throws Exception {
         moveLog.clear();
-        if (vsType.isVsLan())
-        {
+        if (vsType.isVsLan()) {
             partner = new Partner();
             chessBoard = Board.createStandardBoard(partner.getAlliance().getOpposite());
             updateBoard();
@@ -589,9 +552,11 @@ public class Table
                 this.isFlipped = true;
                 SolveLANMove();
             }
-        }
-        else if (vsType.isVsHuman())
-        {
+        } else if (vsType.isVsHuman()) {
+            chessBoard = Board.createStandardBoard(Alliance.WHITE);
+            updateBoard();
+        } else if (vsType.isVsAI()){
+            bot = new AIPlayer();
             chessBoard = Board.createStandardBoard(Alliance.WHITE);
             updateBoard();
         }
