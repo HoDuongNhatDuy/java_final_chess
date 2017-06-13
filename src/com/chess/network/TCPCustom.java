@@ -44,12 +44,12 @@ public abstract class TCPCustom
         }
         catch (SocketException e){
             System.out.println("Partner has gone!");
-            e.printStackTrace();
+            // e.printStackTrace();
             return "";
         } catch (IOException e)
         {
             System.out.println("Partner has gone!");
-            e.printStackTrace();
+            // e.printStackTrace();
             return "";
         }
     }
@@ -74,6 +74,14 @@ public abstract class TCPCustom
         {
             e.printStackTrace();
             System.out.println("Partner has gone!");
+        }
+    }
+
+    public void destroy() throws IOException {
+        System.out.println("Close current TCP connection");
+        if (partner != null)
+        {
+            partner.close();
         }
     }
 
