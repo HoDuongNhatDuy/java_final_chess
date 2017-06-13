@@ -388,7 +388,7 @@ public class Table {
                     if (vsType.isVsLan() && isWaitingForLAN) {
                         SolveLANMove();
                         isWaitingForLAN = false;
-                    } else if (vsType.isVsAI()) {
+                    } else if (vsType.isVsAI() && chessBoard.getCurrentPlayer().getAlliance().isBlack()) {
                         solveAIMove();
                     }
                 }

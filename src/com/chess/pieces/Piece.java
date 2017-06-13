@@ -98,7 +98,7 @@ public abstract class Piece
 
     public enum PieceType
     {
-        PAWN("P", 1)
+        PAWN("P", 41)
                 {
                     @Override
                     public boolean isKing()
@@ -112,7 +112,7 @@ public abstract class Piece
                         return false;
                     }
                 },
-        KNIGHT("N", 2)
+        KNIGHT("N", 42)
                 {
                     @Override
                     public boolean isKing()
@@ -126,7 +126,7 @@ public abstract class Piece
                         return false;
                     }
                 },
-        BISHOP("B", 3)
+        BISHOP("B", 43)
                 {
                     @Override
                     public boolean isKing()
@@ -140,7 +140,7 @@ public abstract class Piece
                         return false;
                     }
                 },
-        ROOK("R", 5)
+        ROOK("R", 44)
                 {
                     @Override
                     public boolean isKing()
@@ -154,7 +154,7 @@ public abstract class Piece
                         return true;
                     }
                 },
-        QUEEN("Q", 9)
+        QUEEN("Q", 60)
                 {
                     @Override
                     public boolean isKing()
