@@ -532,7 +532,7 @@ public class Table {
     private void solveAIMove() {
         System.out.println("AI Move");
 
-        Coordinate[] moves = bot.getMoveCoordinate(chessBoard.getCurrentPlayer().getLegalMoves()
+        /*Coordinate[] moves = bot.getMoveCoordinate(chessBoard.getCurrentPlayer().getLegalMoves()
                 , chessBoard.getCurrentPlayer().getOpponent().getLegalMoves());
 
         Coordinate from = moves[0];
@@ -545,7 +545,26 @@ public class Table {
             setTurnSign(chessBoard.getCurrentPlayer().getAlliance());
 
             moveLog.add(move);
+        }*/
+
+        MoveTransition transition = null;
+        Move move = null;
+
+        while (transition == null || !transition.getMoveStatus().isDone()) {
+            Coordinate[] moves = bot.getMoveCoordinate(chessBoard.getCurrentPlayer().getLegalMoves()
+                    , chessBoard.getCurrentPlayer().getOpponent().getLegalMoves());
+
+            Coordinate from = moves[0];
+            Coordinate to = moves[1];
+
+            move = Move.MoveFactory.createMove(chessBoard, from, to);
+            transition = chessBoard.getCurrentPlayer().makeMove(move);
         }
+
+        chessBoard = transition.getTransitionBoard();
+        setTurnSign(chessBoard.getCurrentPlayer().getAlliance());
+
+        moveLog.add(move);
 
         if (chessBoard.getCurrentPlayer().isInCheckMate() || chessBoard.getCurrentPlayer().isInStaleMate()) {
             if (!isFlipped)

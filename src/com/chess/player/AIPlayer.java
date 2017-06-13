@@ -12,8 +12,9 @@ public class AIPlayer {
     private static final Integer DEFAULT_BEST_VALUE = -1;
 
     public Coordinate[] getMoveCoordinate(Collection<Move> userLegalMoves, Collection<Move> opponentLegalMoves) {
+        System.out.println("-------------------");
         for(Move move: userLegalMoves){
-            System.out.println(move.toString());
+            System.out.print(move.toString() + " ");
         }
 
         ArrayList<Move> bestMoves = new ArrayList<>();
@@ -29,6 +30,7 @@ public class AIPlayer {
                 bestValue = value;
             }
         }
+
         Move chosenMove  = getMove(bestMoves);
 
         return new Coordinate[]{chosenMove.getCurrentCoordinate(),chosenMove.getDestinationCoordinate()};
