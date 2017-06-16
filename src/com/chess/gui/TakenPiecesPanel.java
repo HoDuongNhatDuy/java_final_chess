@@ -26,17 +26,17 @@ public class TakenPiecesPanel extends JPanel
     private final JPanel northPanel;
     private final JPanel southPanel;
 
-    private static final Color PANEL_COLOR = Color.decode("0xFDFE6");
+    private static final Color PANEL_COLOR = Color.decode("0xF2F2F2");
     private static final EtchedBorder PANEL_BORDER = new EtchedBorder(EtchedBorder.RAISED);
 
-    private static final Dimension TAKEN_PIECES_DIMENSION = new Dimension(30, 600);
+    private static final Dimension TAKEN_PIECES_DIMENSION = new Dimension(40, 700);
 
-    private final static String PIECE_ICON_PATH = "art/fancy/";
+    private final static String PIECE_ICON_PATH = "art/wood/";
 
     public TakenPiecesPanel()
     {
         super(new BorderLayout());
-        this.setBackground(Color.decode("0xFDF5E6"));
+        this.setBackground(PANEL_COLOR);
         this.setBorder(PANEL_BORDER);
 
         this.northPanel = new JPanel(new GridLayout(8, 1));

@@ -6,6 +6,7 @@ import com.chess.pieces.Rook;
 
 import javax.print.attribute.standard.MediaSize;
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.*;
@@ -20,7 +21,7 @@ public class GameHistoryPanel extends JPanel
 {
     private final DataModel model;
     private final JScrollPane scrollPane;
-    private static final Dimension HISTORY_PANEL_DIMENSION = new Dimension(100, 400);
+    private static final Dimension HISTORY_PANEL_DIMENSION = new Dimension(150, 400);
 
     GameHistoryPanel()
     {
@@ -29,6 +30,13 @@ public class GameHistoryPanel extends JPanel
         this.model = new DataModel();
         final JTable table = new JTable(model);
         table.setRowHeight(15);
+
+        //Align center the text
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
+        table.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
+
         this.scrollPane = new JScrollPane(table);
         scrollPane.setColumnHeaderView(table.getTableHeader());
         scrollPane.setPreferredSize(HISTORY_PANEL_DIMENSION);
