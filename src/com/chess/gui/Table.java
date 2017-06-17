@@ -74,6 +74,9 @@ public class Table {
     AIPlayer bot;
     boolean isWaitingForLAN = false;
 
+    InitMultiplayerThread initMultiplayerThread;
+    SolveLANMoveThread solveLANMoveThread;
+
     private Table() throws IOException {
         this.gameFrame = new JFrame("Chess");
         this.gameFrame.setLayout(new BorderLayout());
@@ -170,12 +173,11 @@ public class Table {
             @Override
             public void itemStateChanged(ItemEvent e) {
                 if (e.getStateChange() == ItemEvent.SELECTED) {
+
                     vsType = VsType.LAN;
-                    try {
-                        restart();
-                    } catch (Exception e1) {
-                        e1.printStackTrace();
-                    }
+
+                    initMultiplayerThread = new InitMultiplayerThread();
+                    initMultiplayerThread.getThread().start();
                 }
             }
         });
@@ -207,6 +209,114 @@ public class Table {
         fileMenu.add(exitMenuItem);
 
         return fileMenu;
+    }
+
+    class InitMultiplayerThread implements Runnable{
+        Thread thread;
+
+        public InitMultiplayerThread() {
+            this.thread = new Thread(this,"Find partner thread");
+        }
+
+        public Thread getThread() {
+            return thread;
+        }
+
+        @Override
+        public void run() {
+            isWaitingForLAN = true;
+            System.out.println("Start find partner");
+
+            if (partner != null){ // change from vsLAN
+                partner.sendGaveUpMessage();
+                try {
+                    partner.destroy();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                partner = null;
+            }
+
+            try {
+                partner = new Partner();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            System.out.println("Find partner complete");
+            isWaitingForLAN = false;
+
+            chessBoard = Board.createStandardBoard(partner.getAlliance().getOpposite());
+            setTurnSign(chessBoard.getCurrentPlayer().getAlliance());
+
+            updateBoard();
+
+            if (partner.getAlliance().isWhite()) // wait for white turn
+            {
+                isFlipped = true;
+            }
+
+            solveLANMoveThread = new SolveLANMoveThread();
+            solveLANMoveThread.getThread().start();
+        }
+    }
+
+    class SolveLANMoveThread implements Runnable {
+        Thread thread;
+
+        public SolveLANMoveThread() {
+            this.thread = new Thread(this, "Solve LAN move thread");
+        }
+
+        public Thread getThread() {
+            return thread;
+        }
+
+        @Override
+        public void run() {
+            while (partner != null){
+                Coordinate[] moves = partner.getMoveCoordinate();
+
+                if (moves == null) { // opponent has gone!!
+                    JOptionPane.showMessageDialog(gameFrame, "Your opponent has gone");
+                    vsHuman.setSelected(true);
+
+                    return;
+                }
+
+                if (chessBoard.getCurrentPlayer().getAlliance().isBlack()){
+                    Coordinate from = moves[0];
+                    Coordinate to = moves[1];
+
+                    final Move move = Move.MoveFactory.createMove(chessBoard, from, to);
+                    final MoveTransition transition = chessBoard.getCurrentPlayer().makeMove(move);
+                    if (transition.getMoveStatus().isDone()) {
+                        chessBoard = transition.getTransitionBoard();
+                        setTurnSign(chessBoard.getCurrentPlayer().getAlliance());
+
+                        moveLog.add(move);
+                    }
+
+                    if (chessBoard.getCurrentPlayer().isInCheckMate() || chessBoard.getCurrentPlayer().isInStaleMate()) {
+
+                        if (!isFlipped)
+                            JOptionPane.showMessageDialog(gameFrame, chessBoard.getCurrentPlayer().getOpponent().toString() + " won");
+                        else
+                            JOptionPane.showMessageDialog(gameFrame, chessBoard.getCurrentPlayer().toString() + " won");
+
+                        try {
+                            restart();
+                        } catch (Exception e1) {
+                            e1.printStackTrace();
+                        }
+
+                        return;
+                    }
+                    isWaitingForLAN = false;
+                    updateBoard();
+                }
+            }
+        }
     }
 
     enum VsType {
@@ -346,79 +456,76 @@ public class Table {
 
                 @Override
                 public void mousePressed(final MouseEvent e) {
-                    if (isRightMouseButton(e)) {
-                        System.out.println("Right click");
+                    if ((vsType.isVsLan() && chessBoard.getCurrentPlayer().getAlliance().isWhite() && !isWaitingForLAN) ||
+                            vsType.isVsAI() && chessBoard.getCurrentPlayer().getAlliance().isWhite() ||
+                            vsType.isVsHuman()) {
+                        if (isRightMouseButton(e)) {
+                            System.out.println("Right click");
 
-                        sourceTile = null;
-                        humanMovePiece = null;
-                        destinationTile = null;
-
-                        updateBoard();
-                    } else if (isLeftMouseButton(e)) {
-                        if (sourceTile == null)     // first click
-                        {
-                            System.out.println("Left first click");
-
-                            sourceTile = chessBoard.getTile(coordinate);
-                            humanMovePiece = sourceTile.getPiece();
-                            if (humanMovePiece == null)
-                                sourceTile = null;
-
-                            updateBoard();
-                        } else    // second click
-                        {
-                            System.out.println("Left second click");
-
-                            destinationTile = chessBoard.getTile(coordinate);
-                            final Move move = Move.MoveFactory.createMove(chessBoard, sourceTile.getCoordinate(), destinationTile.getCoordinate());
-                            final MoveTransition transition = chessBoard.getCurrentPlayer().makeMove(move);
-                            if (transition.getMoveStatus().isDone()) {
-                                chessBoard = transition.getTransitionBoard();
-                                setTurnSign(chessBoard.getCurrentPlayer().getAlliance());
-
-                                moveLog.add(move);
-
-                                if (vsType.isVsLan()) {
-                                    partner.sendMoveCoordinate(sourceTile.getCoordinate(), destinationTile.getCoordinate());
-                                }
-                            }
                             sourceTile = null;
                             humanMovePiece = null;
                             destinationTile = null;
 
-                            if (vsType.isVsLan() && transition.getMoveStatus().isDone()) {
-                                isWaitingForLAN = true;
-                            }
+                            updateBoard();
+                        } else if (isLeftMouseButton(e)) {
+                            if (sourceTile == null)     // first click
+                            {
+                                System.out.println("Left first click");
 
-                            if (chessBoard.getCurrentPlayer().isInCheckMate() || chessBoard.getCurrentPlayer().isInStaleMate()) {
-                                if (!isFlipped)
-                                    JOptionPane.showMessageDialog(gameFrame, chessBoard.getCurrentPlayer().getOpponent().toString() + " won");
-                                else
-                                    JOptionPane.showMessageDialog(gameFrame, chessBoard.getCurrentPlayer().toString() + " won");
+                                sourceTile = chessBoard.getTile(coordinate);
+                                humanMovePiece = sourceTile.getPiece();
+                                if (humanMovePiece == null)
+                                    sourceTile = null;
 
-                                try {
-                                    restart();
-                                    isWaitingForLAN = false;
-                                } catch (Exception e1) {
-                                    e1.printStackTrace();
+                                updateBoard();
+                            } else    // second click
+                            {
+                                System.out.println("Left second click");
+
+                                destinationTile = chessBoard.getTile(coordinate);
+                                final Move move = Move.MoveFactory.createMove(chessBoard, sourceTile.getCoordinate(), destinationTile.getCoordinate());
+                                final MoveTransition transition = chessBoard.getCurrentPlayer().makeMove(move);
+                                if (transition.getMoveStatus().isDone()) {
+                                    chessBoard = transition.getTransitionBoard();
+                                    setTurnSign(chessBoard.getCurrentPlayer().getAlliance());
+
+                                    moveLog.add(move);
+
+                                    if (vsType.isVsLan()) {
+                                        partner.sendMoveCoordinate(sourceTile.getCoordinate(), destinationTile.getCoordinate());
+                                    }
+                                }
+                                sourceTile = null;
+                                humanMovePiece = null;
+                                destinationTile = null;
+
+                                if (vsType.isVsLan() && transition.getMoveStatus().isDone()) {
+                                    isWaitingForLAN = true;
                                 }
 
+                                if (chessBoard.getCurrentPlayer().isInCheckMate() || chessBoard.getCurrentPlayer().isInStaleMate()) {
+                                    if (!isFlipped)
+                                        JOptionPane.showMessageDialog(gameFrame, chessBoard.getCurrentPlayer().getOpponent().toString() + " won");
+                                    else
+                                        JOptionPane.showMessageDialog(gameFrame, chessBoard.getCurrentPlayer().toString() + " won");
+
+                                    try {
+                                        restart();
+                                        isWaitingForLAN = false;
+                                    } catch (Exception e1) {
+                                        e1.printStackTrace();
+                                    }
+
+                                }
+                                updateBoard();
                             }
-                            updateBoard();
                         }
                     }
                 }
 
                 @Override
                 public void mouseReleased(final MouseEvent e) {
-                    if (vsType.isVsLan() && isWaitingForLAN) {
-                        try {
-                            solveLANMove();
-                        } catch (Exception e1) {
-                            e1.printStackTrace();
-                        }
-                        isWaitingForLAN = false;
-                    } else if (vsType.isVsAI() && chessBoard.getCurrentPlayer().getAlliance().isBlack()) {
+                    if (vsType.isVsAI() && chessBoard.getCurrentPlayer().getAlliance().isBlack()) {
                         solveAIMove();
                     }
                 }
@@ -496,47 +603,6 @@ public class Table {
         }
     }
 
-    private void solveLANMove() throws Exception {
-        System.out.println("LAN move");
-
-        Coordinate[] moves = partner.getMoveCoordinate();
-
-        if (moves == null) { // opponent has gone!!
-            JOptionPane.showMessageDialog(gameFrame, "Your opponent has gone");
-            vsHuman.setSelected(true);
-
-            return;
-        }
-
-        Coordinate from = moves[0];
-        Coordinate to = moves[1];
-
-        final Move move = Move.MoveFactory.createMove(chessBoard, from, to);
-        final MoveTransition transition = chessBoard.getCurrentPlayer().makeMove(move);
-        if (transition.getMoveStatus().isDone()) {
-            chessBoard = transition.getTransitionBoard();
-            setTurnSign(chessBoard.getCurrentPlayer().getAlliance());
-
-            moveLog.add(move);
-        }
-
-        if (chessBoard.getCurrentPlayer().isInCheckMate() || chessBoard.getCurrentPlayer().isInStaleMate()) {
-
-            if (!isFlipped)
-                JOptionPane.showMessageDialog(gameFrame, chessBoard.getCurrentPlayer().getOpponent().toString() + " won");
-            else
-                JOptionPane.showMessageDialog(gameFrame, chessBoard.getCurrentPlayer().toString() + " won");
-
-            try {
-                restart();
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
-        }
-
-        updateBoard();
-    }
-
     private void solveAIMove() {
         System.out.println("AI Move");
 
@@ -609,18 +675,10 @@ public class Table {
     private void restart() throws Exception {
         moveLog.clear();
         if (vsType.isVsLan()) {
-            if (partner == null)
-                partner = new Partner();
             chessBoard = Board.createStandardBoard(partner.getAlliance().getOpposite());
             setTurnSign(chessBoard.getCurrentPlayer().getAlliance());
 
             updateBoard();
-
-            if (partner.getAlliance().isWhite()) // wait for white turn
-            {
-                this.isFlipped = true;
-                solveLANMove();
-            }
         } else if (vsType.isVsHuman()) {
             chessBoard = Board.createStandardBoard(Alliance.WHITE);
             setTurnSign(chessBoard.getCurrentPlayer().getAlliance());
