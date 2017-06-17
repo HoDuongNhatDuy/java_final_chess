@@ -44,7 +44,7 @@ public class Table {
     private Tile destinationTile;
     private Piece humanMovePiece;
 
-    private static Dimension OUTER_FRAME_DIMENSION = new Dimension(600, 600);
+    private static Dimension OUTER_FRAME_DIMENSION = new Dimension(700, 700);
     private final static Dimension BOARD_PANEL_DIMENSION = new Dimension(400, 350);
     private final static Dimension TILE_PANEL_DIMENSION = new Dimension(10, 10);
     private final static Dimension TURN_SIGN_PANEL_DIMENSION = new Dimension(400, 5);
@@ -52,7 +52,7 @@ public class Table {
     private final static Color DARK_TILE_COLOR = new Color(107, 55, 5);
     private final static Color LIGHT_TILE_COLOR = new Color(255, 252, 210);
 
-    private final static String PIECE_ICON_PATH = "art/fancy/";
+    private final static String PIECE_ICON_PATH = "art/3d/";
 
     private static Table INSTANCE = null;
 
@@ -460,7 +460,7 @@ public class Table {
             for (final Move move : pieceLegalMoves(board)) {
                 if (move.getDestinationCoordinate().equals(this.coordinate)) {
                     //add(new JLabel(new ImageIcon(ImageIO.read(new File("art/misc/green_dot.png")))));
-                    setBorder(BorderFactory.createLineBorder(Color.GREEN, 2));
+                    setBorder(BorderFactory.createLineBorder(Color.GREEN, 5));
                 }
             }
         }
