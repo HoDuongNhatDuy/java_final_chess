@@ -1,6 +1,7 @@
 package com.chess.player;
 
 import com.chess.Coordinate;
+import com.chess.board.Board;
 import com.chess.board.Move;
 
 import java.util.*;
@@ -11,8 +12,11 @@ import java.util.*;
 public class AIPlayer {
     private static final Integer DEFAULT_BEST_VALUE = -1;
 
-    public Coordinate[] getMoveCoordinate(Collection<Move> userLegalMoves, Collection<Move> opponentLegalMoves) {
+    public Coordinate[] getMoveCoordinate(Board board) {
         System.out.println("-------------------");
+
+        Collection<Move> userLegalMoves = board.getCurrentPlayer().getLegalMoves();
+
         for(Move move: userLegalMoves){
             System.out.print(move.toString() + " ");
         }
@@ -20,14 +24,21 @@ public class AIPlayer {
         ArrayList<Move> bestMoves = new ArrayList<>();
         Integer bestValue = DEFAULT_BEST_VALUE;
         for (Move move : userLegalMoves) {
-            Integer value = calculateValue(move);
-            if (bestValue < value) {
-                bestMoves.clear();
-                bestMoves.add(move);
-                bestValue = value;
-            } else if(bestValue.equals(value)){
-                bestMoves.add(move);
-                bestValue = value;
+
+            Move tryMove = Move.MoveFactory.createMove(board, move.getCurrentCoordinate(), move.getDestinationCoordinate());
+            MoveTransition transition = board.getCurrentPlayer().makeMove(tryMove);
+
+            if (transition.getMoveStatus().isDone()) {
+
+                Integer value = calculateValue(move);
+                if (bestValue < value) {
+                    bestMoves.clear();
+                    bestMoves.add(move);
+                    bestValue = value;
+                } else if (bestValue.equals(value)) {
+                    bestMoves.add(move);
+                    bestValue = value;
+                }
             }
         }
 

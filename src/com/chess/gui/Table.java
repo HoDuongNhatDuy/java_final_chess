@@ -559,8 +559,7 @@ public class Table {
         Move move = null;
 
         while (transition == null || !transition.getMoveStatus().isDone()) {
-            Coordinate[] moves = bot.getMoveCoordinate(chessBoard.getCurrentPlayer().getLegalMoves()
-                    , chessBoard.getCurrentPlayer().getOpponent().getLegalMoves());
+            Coordinate[] moves = bot.getMoveCoordinate(chessBoard);
 
             Coordinate from = moves[0];
             Coordinate to = moves[1];
