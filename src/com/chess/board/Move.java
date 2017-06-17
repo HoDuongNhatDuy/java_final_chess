@@ -130,7 +130,7 @@ public abstract class Move
         @Override
         public String toString()
         {
-            return getMovedPiece().getPieceType().toString() + BoardUtils.getPositionAtCoordinate(this.destinationCoordinate);
+            return getMovedPiece().getPieceType().toString() + " - " + BoardUtils.getPositionAtCoordinate(this.destinationCoordinate);
         }
     }
 
@@ -151,7 +151,7 @@ public abstract class Move
         @Override
         public String toString()
         {
-            return getMovedPiece().getPieceType() + BoardUtils.getPositionAtCoordinate(this.destinationCoordinate);
+            return getMovedPiece().getPieceType() + "x" + getAttackedPiece().getPieceType() + " - " + BoardUtils.getPositionAtCoordinate(this.destinationCoordinate);
         }
     }
 
@@ -212,7 +212,7 @@ public abstract class Move
         @Override
         public String toString()
         {
-            return BoardUtils.getPositionAtCoordinate(this.destinationCoordinate);
+            return getMovedPiece().getPieceType() + " - " + BoardUtils.getPositionAtCoordinate(this.destinationCoordinate);
         }
     }
 
@@ -232,7 +232,7 @@ public abstract class Move
         @Override
         public String toString()
         {
-            return BoardUtils.getPositionAtCoordinate(this.getMovedPiece().getCoordinate()).substring(0, 1) + "x" + BoardUtils.getPositionAtCoordinate(this.destinationCoordinate);
+            return BoardUtils.getPositionAtCoordinate(this.getMovedPiece().getCoordinate()).substring(0, 1) + "x" + getAttackedPiece().getPieceType() + " - " + BoardUtils.getPositionAtCoordinate(this.destinationCoordinate);
 
         }
     }
@@ -307,7 +307,7 @@ public abstract class Move
         @Override
         public String toString()
         {
-            return getMovedPiece().getPieceType().toString() + BoardUtils.getPositionAtCoordinate(this.destinationCoordinate);
+            return getMovedPiece().getPieceType().toString() + " - " + BoardUtils.getPositionAtCoordinate(this.destinationCoordinate);
         }
     }
 
@@ -392,7 +392,7 @@ public abstract class Move
         @Override
         public String toString()
         {
-            return "0-0";
+            return "CM - " + BoardUtils.getPositionAtCoordinate(this.destinationCoordinate);
         }
 
         @Override
@@ -412,7 +412,7 @@ public abstract class Move
         @Override
         public String toString()
         {
-            return "0-0-0";
+            return "CM - " + BoardUtils.getPositionAtCoordinate(this.destinationCoordinate);
         }
 
         @Override
@@ -483,7 +483,7 @@ public abstract class Move
         @Override
         public String toString()
         {
-            return "";
+            return "PP - " + BoardUtils.getPositionAtCoordinate(this.destinationCoordinate);
         }
     }
 

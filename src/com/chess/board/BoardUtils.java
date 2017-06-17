@@ -9,7 +9,7 @@ import com.chess.pieces.Piece;
  */
 public class BoardUtils
 {
-    final static String[] BOARD_COLUMN_NAME = {"a", "b", "c", "d", "e", "f", "g", "h"};
+    final static String[] BOARD_COLUMN_NAME = {"A", "B", "C", "D", "E", "F", "G", "H"};
 
     private BoardUtils()
     {

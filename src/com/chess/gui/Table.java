@@ -44,15 +44,16 @@ public class Table {
     private Tile destinationTile;
     private Piece humanMovePiece;
 
-    private static Dimension OUTER_FRAME_DIMENSION = new Dimension(700, 700);
+    private static Dimension OUTER_FRAME_DIMENSION = new Dimension(750, 700);
     private final static Dimension BOARD_PANEL_DIMENSION = new Dimension(400, 350);
     private final static Dimension TILE_PANEL_DIMENSION = new Dimension(10, 10);
     private final static Dimension TURN_SIGN_PANEL_DIMENSION = new Dimension(400, 5);
 
-    private final static Color DARK_TILE_COLOR = new Color(107, 55, 5);
-    private final static Color LIGHT_TILE_COLOR = new Color(255, 252, 210);
+    private final static Color DARK_TILE_COLOR = new Color(175, 181, 185);
+    private final static Color LIGHT_TILE_COLOR = new Color(255, 255, 255);
+    private final static Color HIGHLIGHT_COLOR = new Color(201,116,69);
 
-    private final static String PIECE_ICON_PATH = "art/3d/";
+    private final static String PIECE_ICON_PATH = "art/wood/";
 
     private static Table INSTANCE = null;
 
@@ -105,6 +106,13 @@ public class Table {
 
         setTurnSign(chessBoard.getCurrentPlayer().getAlliance());
 
+        this.gameFrame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                System.exit(1);
+            }
+        });
+
         this.gameFrame.setVisible(true);
     }
 
@@ -124,21 +132,21 @@ public class Table {
     }
 
     private JMenu createFileMenu() {
-        final JMenu fileMenu = new JMenu("File");
+        final JMenu fileMenu = new JMenu("Game");
 
         groupVsMenuItem = new ButtonGroup();
 
-        vsHuman = new JRadioButtonMenuItem("Human");
+        vsHuman = new JRadioButtonMenuItem("Free Control");
         vsHuman.setSelected(true);
         groupVsMenuItem.add(vsHuman);
         fileMenu.add(vsHuman);
 
-        vsLan = new JRadioButtonMenuItem("LAN");
+        vsLan = new JRadioButtonMenuItem("Multiplayer");
         vsLan.setSelected(true);
         groupVsMenuItem.add(vsLan);
         fileMenu.add(vsLan);
 
-        vsAI = new JRadioButtonMenuItem("AI");
+        vsAI = new JRadioButtonMenuItem("Singleplayer");
         vsAI.setSelected(true);
         groupVsMenuItem.add(vsAI);
         fileMenu.add(vsAI);
@@ -460,7 +468,7 @@ public class Table {
             for (final Move move : pieceLegalMoves(board)) {
                 if (move.getDestinationCoordinate().equals(this.coordinate)) {
                     //add(new JLabel(new ImageIcon(ImageIO.read(new File("art/misc/green_dot.png")))));
-                    setBorder(BorderFactory.createLineBorder(Color.GREEN, 5));
+                    setBorder(BorderFactory.createLineBorder(HIGHLIGHT_COLOR, 3));
                 }
             }
         }
@@ -646,5 +654,7 @@ public class Table {
             myTurnSignPannel.setBackground(null);
         }
     }
+
+
 }
 
