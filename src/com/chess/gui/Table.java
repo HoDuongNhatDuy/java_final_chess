@@ -44,7 +44,7 @@ public class Table {
     private Tile destinationTile;
     private Piece humanMovePiece;
 
-    private static Dimension OUTER_FRAME_DIMENSION = new Dimension(750, 700);
+    private static Dimension OUTER_FRAME_DIMENSION = new Dimension(950, 900);
     private final static Dimension BOARD_PANEL_DIMENSION = new Dimension(400, 350);
     private final static Dimension TILE_PANEL_DIMENSION = new Dimension(10, 10);
     private final static Dimension TURN_SIGN_PANEL_DIMENSION = new Dimension(400, 5);
@@ -115,6 +115,8 @@ public class Table {
                 System.exit(1);
             }
         });
+
+        this.gameFrame.setResizable(false);
 
         this.gameFrame.setVisible(true);
     }
@@ -377,22 +379,57 @@ public class Table {
     }
 
     private class BoardPanel extends JPanel {
-        private final List<TilePanel> boardTiles;
+
+        private JLayeredPane layeredPane;
+        private JPanel legendPanel;
+        private ChessPanel chessPanel;
 
         BoardPanel() throws IOException {
-            super(new GridLayout(8, 8));
+            super(new BorderLayout());
+
+            legendPanel = new JPanel(){
+                @Override
+                protected void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    Image background;
+                    Graphics2D painter = (Graphics2D)g;
+                    background = Toolkit.getDefaultToolkit().getImage("art/wood/legend.jpg");
+                    painter.drawImage(background,0,0,this);
+                }
+            };
+
+            chessPanel = new ChessPanel(this);
+            layeredPane = new JLayeredPane();
+            layeredPane.add(legendPanel,JLayeredPane.DEFAULT_LAYER);
+            layeredPane.add(chessPanel,JLayeredPane.PALETTE_LAYER);
+            this.add(layeredPane,BorderLayout.CENTER);
+
+            legendPanel.setBounds(0,0,900,900);
+            chessPanel.setBounds(35,40,680,760);
+
+            setPreferredSize(BOARD_PANEL_DIMENSION);
+            validate();
+        }
+
+        public void drawBoard(final Board board) throws IOException {
+            chessPanel.drawBoard(board);
+        }
+    }
+
+    private class ChessPanel extends JPanel{
+        private final List<TilePanel> boardTiles;
+
+        ChessPanel(final BoardPanel boardPanel) throws IOException{
+            super(new GridLayout(8,8));
             this.boardTiles = new ArrayList<>();
 
             for (int y = 0; y < 8; y++) {
                 for (int x = 0; x < 8; x++) {
-                    final TilePanel tilePanel = new TilePanel(this, new Coordinate(x, 7 - y));
+                    final TilePanel tilePanel = new TilePanel(boardPanel, new Coordinate(x, 7 - y));
                     this.boardTiles.add(tilePanel);
                     add(tilePanel);
                 }
             }
-
-            setPreferredSize(BOARD_PANEL_DIMENSION);
-            validate();
         }
 
         public void drawBoard(final Board board) throws IOException {
@@ -401,9 +438,9 @@ public class Table {
                 tilePanel.drawTile(board);
                 add(tilePanel);
             }
-
             validate();
             repaint();
+            System.out.println(getSize().getWidth() + " - " +getSize().getHeight());
         }
     }
 
@@ -595,11 +632,29 @@ public class Table {
             return Collections.emptyList();
         }
 
-        private void assignColor() {
-            if ((this.coordinate.getX() + this.coordinate.getY()) % 2 == 0)
+        private void assignColor() throws IOException {
+            /*if ((this.coordinate.getX() + this.coordinate.getY()) % 2 == 0){
                 setBackground(LIGHT_TILE_COLOR);
-            else
+            }
+            else{
                 setBackground(DARK_TILE_COLOR);
+            }*/
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Image background;
+            Graphics2D painter = (Graphics2D)g;
+
+            if ((this.coordinate.getX() + this.coordinate.getY()) % 2 == 0){
+                background = Toolkit.getDefaultToolkit().getImage("art/wood/tile_light.gif");
+            }
+            else{
+                background = Toolkit.getDefaultToolkit().getImage("art/wood/tile_dark.gif");
+            }
+
+            painter.drawImage(background,0,0,this);
         }
     }
 

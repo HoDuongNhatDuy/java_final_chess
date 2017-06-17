@@ -31,7 +31,7 @@ public class GameHistoryPanel extends JPanel
         final JTable table = new JTable(model);
         table.setRowHeight(15);
 
-        //Align center the text
+        // Align text center
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
         table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
