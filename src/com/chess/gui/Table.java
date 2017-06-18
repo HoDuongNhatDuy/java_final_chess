@@ -45,7 +45,8 @@ public class Table {
     private Tile destinationTile;
     private Piece humanMovePiece;
 
-    private static Dimension OUTER_FRAME_DIMENSION = new Dimension(950, 900);
+    //private static Dimension OUTER_FRAME_DIMENSION = new Dimension(950, 900);
+    private static Dimension OUTER_FRAME_DIMENSION = new Dimension(850, 800);
     private final static Dimension BOARD_PANEL_DIMENSION = new Dimension(400, 350);
     private final static Dimension TILE_PANEL_DIMENSION = new Dimension(10, 10);
     private final static Dimension TURN_SIGN_PANEL_DIMENSION = new Dimension(400, 5);
@@ -430,8 +431,10 @@ public class Table {
             layeredPane.add(chessPanel,JLayeredPane.PALETTE_LAYER);
             this.add(layeredPane,BorderLayout.CENTER);
 
-            legendPanel.setBounds(0,0,900,900);
-            chessPanel.setBounds(35,40,680,760);
+            /*legendPanel.setBounds(0,0,900,900);
+            chessPanel.setBounds(35,40,680,760);*/
+            legendPanel.setBounds(0,0,800,800);
+            chessPanel.setBounds(33,33,584,672);
 
             setPreferredSize(BOARD_PANEL_DIMENSION);
             validate();
@@ -439,6 +442,7 @@ public class Table {
 
         public void drawBoard(final Board board) throws IOException {
             chessPanel.drawBoard(board);
+            System.out.println(getSize().getWidth() + " - " +getSize().getHeight());
         }
     }
 
