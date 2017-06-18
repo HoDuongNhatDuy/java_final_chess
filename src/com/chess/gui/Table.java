@@ -51,7 +51,7 @@ public class Table {
 
     private final static Color DARK_TILE_COLOR = new Color(175, 181, 185);
     private final static Color LIGHT_TILE_COLOR = new Color(255, 255, 255);
-    private final static Color HIGHLIGHT_COLOR = new Color(201,116,69);
+    private final static Color HIGHLIGHT_COLOR = Color.decode("#45ed83");
 
     private final static String PIECE_ICON_PATH = "art/wood/";
 
@@ -758,11 +758,11 @@ public class Table {
 
     void setTurnSign(Alliance alliance){
         if (alliance.isWhite()) {
-            myTurnSignPannel.setBackground(new Color(0, 255, 0));
+            myTurnSignPannel.setBackground(HIGHLIGHT_COLOR);
             opponentTurnSignPannel.setBackground(null);
         }
         else {
-            opponentTurnSignPannel.setBackground(new Color(0, 255, 0));
+            opponentTurnSignPannel.setBackground(HIGHLIGHT_COLOR);
             myTurnSignPannel.setBackground(null);
         }
     }
