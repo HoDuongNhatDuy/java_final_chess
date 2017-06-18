@@ -4,6 +4,7 @@ import com.chess.Alliance;
 import com.chess.Coordinate;
 import com.chess.board.Board;
 import com.chess.board.Move;
+import com.chess.board.Move.NullMove;
 import com.chess.board.Tile;
 import com.chess.network.Partner;
 import com.chess.pieces.Piece;
@@ -77,6 +78,8 @@ public class Table {
     InitMultiplayerThread initMultiplayerThread;
     SolveLANMoveThread solveLANMoveThread;
 
+    final GameHistory gameHistory;
+
     private Table() throws IOException {
         this.gameFrame = new JFrame("Chess");
         this.gameFrame.setLayout(new BorderLayout());
@@ -88,6 +91,9 @@ public class Table {
         isFlipped = false;
 
         this.chessBoard = Board.createStandardBoard(Alliance.WHITE);
+
+        gameHistory = new GameHistory();
+        gameHistory.add(chessBoard, new NullMove());
 
         this.gameHistoryPanel = new GameHistoryPanel();
         this.takenPiecesPanel = new TakenPiecesPanel();
@@ -138,6 +144,26 @@ public class Table {
 
     private JMenu createFileMenu() {
         final JMenu fileMenu = new JMenu("Game");
+
+        final JMenuItem undo = new JMenuItem("Undo");
+        undo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                GameHistory.GameState state = gameHistory.getLastState();
+
+                if (state != null){
+                    chessBoard = state.getBoard();
+                    gameHistory.undo();
+                    moveLog.undo();
+
+                    updateBoard();
+                }
+            }
+        });
+
+        fileMenu.add(undo);
+
+        fileMenu.addSeparator();
 
         groupVsMenuItem = new ButtonGroup();
 
@@ -474,6 +500,10 @@ public class Table {
         public boolean remove(final Move move) {
             return moves.remove(move);
         }
+
+        public void undo(){
+            this.moves.remove(this.moves.size() - 1);
+        }
     }
 
     private class TilePanel extends JPanel {
@@ -526,6 +556,7 @@ public class Table {
                                     chessBoard = transition.getTransitionBoard();
                                     setTurnSign(chessBoard.getCurrentPlayer().getAlliance());
 
+                                    gameHistory.add(chessBoard, move);
                                     moveLog.add(move);
 
                                     if (vsType.isVsLan()) {
@@ -679,17 +710,18 @@ public class Table {
         MoveTransition transition = null;
         Move move = null;
 
-        while (transition == null || !transition.getMoveStatus().isDone()) {
-            Coordinate[] moves = bot.getMoveCoordinate(chessBoard);
+        Coordinate[] moves = bot.getMoveCoordinate(chessBoard);
 
-            Coordinate from = moves[0];
-            Coordinate to = moves[1];
+        Coordinate from = moves[0];
+        Coordinate to = moves[1];
 
-            move = Move.MoveFactory.createMove(chessBoard, from, to);
-            transition = chessBoard.getCurrentPlayer().makeMove(move);
-        }
+        move = Move.MoveFactory.createMove(chessBoard, from, to);
+
+        transition = chessBoard.getCurrentPlayer().makeMove(move);
 
         chessBoard = transition.getTransitionBoard();
+        gameHistory.add(chessBoard, move);
+
         setTurnSign(chessBoard.getCurrentPlayer().getAlliance());
 
         moveLog.add(move);
@@ -752,6 +784,9 @@ public class Table {
 
             updateBoard();
         }
+
+        gameHistory.reset();
+        gameHistory.add(chessBoard, new NullMove());
 
         System.out.println(chessBoard);
     }
