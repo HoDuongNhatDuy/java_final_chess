@@ -37,8 +37,9 @@ public class Table {
 
     private final GameHistoryPanel gameHistoryPanel;
     private final TakenPiecesPanel takenPiecesPanel;
-    private final JPanel myTurnSignPannel;
-    private final JPanel opponentTurnSignPannel;
+    private final TurnSignPanel myTurnSignPanel;
+    private final TurnSignPanel opponentTurnSignPanel;
+    private final ToolPanel toolPanel;
     private final MoveLog moveLog;
 
     private Tile sourceTile;
@@ -46,16 +47,10 @@ public class Table {
     private Piece humanMovePiece;
 
     //private static Dimension OUTER_FRAME_DIMENSION = new Dimension(950, 900);
-    private static Dimension OUTER_FRAME_DIMENSION = new Dimension(850, 800);
+    private static Dimension OUTER_FRAME_DIMENSION = new Dimension(960, 850);
     private final static Dimension BOARD_PANEL_DIMENSION = new Dimension(400, 350);
     private final static Dimension TILE_PANEL_DIMENSION = new Dimension(10, 10);
     private final static Dimension TURN_SIGN_PANEL_DIMENSION = new Dimension(400, 5);
-
-    private final static Color DARK_TILE_COLOR = new Color(175, 181, 185);
-    private final static Color LIGHT_TILE_COLOR = new Color(255, 255, 255);
-    private final static Color HIGHLIGHT_COLOR = Color.decode("#45ed83");
-
-    private final static String PIECE_ICON_PATH = "art/wood/";
 
     private static Table INSTANCE = null;
 
@@ -98,12 +93,13 @@ public class Table {
 
         this.gameHistoryPanel = new GameHistoryPanel();
         this.takenPiecesPanel = new TakenPiecesPanel();
-        this.myTurnSignPannel = new JPanel();
-        this.opponentTurnSignPannel = new JPanel();
+        this.myTurnSignPanel = new TurnSignPanel();
+        this.opponentTurnSignPanel = new TurnSignPanel();
+        this.toolPanel = new ToolPanel();
         this.moveLog = new MoveLog();
 
-        this.myTurnSignPannel.setPreferredSize(TURN_SIGN_PANEL_DIMENSION);
-        this.opponentTurnSignPannel.setPreferredSize(TURN_SIGN_PANEL_DIMENSION);
+        this.myTurnSignPanel.setPreferredSize(TURN_SIGN_PANEL_DIMENSION);
+        this.opponentTurnSignPanel.setPreferredSize(TURN_SIGN_PANEL_DIMENSION);
 
         this.gameFrame.setSize(OUTER_FRAME_DIMENSION);
 
@@ -111,8 +107,7 @@ public class Table {
         this.gameFrame.add(this.takenPiecesPanel, BorderLayout.WEST);
         this.gameFrame.add(this.boardPanel, BorderLayout.CENTER);
         this.gameFrame.add(this.gameHistoryPanel, BorderLayout.EAST);
-        this.gameFrame.add(this.myTurnSignPannel, BorderLayout.SOUTH);
-        this.gameFrame.add(this.opponentTurnSignPannel, BorderLayout.NORTH);
+        this.gameFrame.add(toolPanel,BorderLayout.NORTH);
 
         setTurnSign(chessBoard.getCurrentPlayer().getAlliance());
 
@@ -136,6 +131,18 @@ public class Table {
         updateBoard();
     }
 
+    public void undo(){
+        GameHistory.GameState state = gameHistory.getLastState();
+
+        if (state != null){
+            chessBoard = state.getBoard();
+            gameHistory.undo();
+            moveLog.undo();
+            setTurnSign(chessBoard.getCurrentPlayer().getAlliance());
+            updateBoard();
+        }
+    }
+
     private JMenuBar populateMenuBar() {
         final JMenuBar tableMenuBar = new JMenuBar();
         tableMenuBar.add(createFileMenu());
@@ -150,15 +157,7 @@ public class Table {
         undo.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                GameHistory.GameState state = gameHistory.getLastState();
-
-                if (state != null){
-                    chessBoard = state.getBoard();
-                    gameHistory.undo();
-                    moveLog.undo();
-
-                    updateBoard();
-                }
+                undo();
             }
         });
 
@@ -307,7 +306,7 @@ public class Table {
                 Coordinate[] moves = partner.getMoveCoordinate();
 
                 if (moves == null) { // opponent has gone!!
-                    JOptionPane.showMessageDialog(gameFrame, "Your opponent has gone");
+                    JOptionPane.showMessageDialog(gameFrame, "Your opponent has left");
                     vsHuman.setSelected(true);
 
                     return;
@@ -405,6 +404,69 @@ public class Table {
         public abstract boolean isVsAI();
     }
 
+    private class ToolPanel extends JPanel{
+        private JPanel logoPanel;
+        private JPanel buttonPanel;
+        ToolPanel(){
+            super(new BorderLayout());
+            logoPanel = new JPanel(){
+                @Override
+                protected void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    Graphics2D painter = (Graphics2D)g;
+                    painter.drawImage(Resource.MAIN_LOGO,350,5,logoPanel);
+                }
+            };
+            buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            add(logoPanel,BorderLayout.CENTER);
+            add(buttonPanel,BorderLayout.EAST);
+            logoPanel.setOpaque(false);
+            buttonPanel.setOpaque(false);
+
+            GameButton undoBtn = new GameButton(GameButton.Type.UNDO);
+            undoBtn.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    undo();
+                }
+            });
+            GameButton newSingleBtn = new GameButton(GameButton.Type.NEW_SINGLE);
+            newSingleBtn.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    vsType = VsType.AI;
+                    try {
+                        restart();
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
+                }
+            });
+            GameButton newMultiBtn = new GameButton(GameButton.Type.NEW_MULTI);
+            newMultiBtn.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    vsType = VsType.LAN;
+
+                    initMultiplayerThread = new InitMultiplayerThread();
+                    initMultiplayerThread.getThread().start();
+                }
+            });
+            buttonPanel.add(newSingleBtn);
+            buttonPanel.add(newMultiBtn);
+            buttonPanel.add(undoBtn);
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D painter = (Graphics2D)g;
+            painter.drawImage(Resource.BACKGROUND,0,0,this);
+        }
+
+
+    }
+
     private class BoardPanel extends JPanel {
 
         private JLayeredPane layeredPane;
@@ -413,26 +475,23 @@ public class Table {
 
         BoardPanel() throws IOException {
             super(new BorderLayout());
-
             legendPanel = new JPanel(){
                 @Override
                 protected void paintComponent(Graphics g) {
                     super.paintComponent(g);
-                    Image background;
                     Graphics2D painter = (Graphics2D)g;
-                    background = Toolkit.getDefaultToolkit().getImage("art/wood/legend.jpg");
-                    painter.drawImage(background,0,0,this);
+                    painter.drawImage(Resource.LEGEND,0,0,this);
                 }
             };
-
             chessPanel = new ChessPanel(this);
             layeredPane = new JLayeredPane();
             layeredPane.add(legendPanel,JLayeredPane.DEFAULT_LAYER);
             layeredPane.add(chessPanel,JLayeredPane.PALETTE_LAYER);
             this.add(layeredPane,BorderLayout.CENTER);
 
-            /*legendPanel.setBounds(0,0,900,900);
-            chessPanel.setBounds(35,40,680,760);*/
+            this.add(myTurnSignPanel,BorderLayout.SOUTH);
+            this.add(opponentTurnSignPanel,BorderLayout.NORTH);
+
             legendPanel.setBounds(0,0,800,800);
             chessPanel.setBounds(33,33,584,672);
 
@@ -442,7 +501,6 @@ public class Table {
 
         public void drawBoard(final Board board) throws IOException {
             chessPanel.drawBoard(board);
-            System.out.println(getSize().getWidth() + " - " +getSize().getHeight());
         }
     }
 
@@ -470,7 +528,6 @@ public class Table {
             }
             validate();
             repaint();
-            System.out.println(getSize().getWidth() + " - " +getSize().getHeight());
         }
     }
 
@@ -637,7 +694,7 @@ public class Table {
                     alliance = alliance.getOpposite();
                 }
 
-                final BufferedImage image = ImageIO.read(new File(PIECE_ICON_PATH + alliance.toString().substring(0, 1) + piece.toString() + ".gif"));
+                final BufferedImage image = ImageIO.read(new File(Resource.PIECE_ICON_PATH + alliance.toString().substring(0, 1) + piece.toString() + ".gif"));
 
                 add(new JLabel(new ImageIcon(image)));
             }
@@ -646,8 +703,7 @@ public class Table {
         private void highLightLegalMoves(final Board board) throws IOException {
             for (final Move move : pieceLegalMoves(board)) {
                 if (move.getDestinationCoordinate().equals(this.coordinate)) {
-                    //add(new JLabel(new ImageIcon(ImageIO.read(new File("art/misc/green_dot.png")))));
-                    setBorder(BorderFactory.createLineBorder(HIGHLIGHT_COLOR, 3));
+                    setBorder(BorderFactory.createLineBorder(Resource.HIGHLIGHT_COLOR, 3));
                 }
             }
         }
@@ -668,28 +724,19 @@ public class Table {
         }
 
         private void assignColor() throws IOException {
-            /*if ((this.coordinate.getX() + this.coordinate.getY()) % 2 == 0){
-                setBackground(LIGHT_TILE_COLOR);
-            }
-            else{
-                setBackground(DARK_TILE_COLOR);
-            }*/
+            //Do nothing
         }
 
         @Override
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
-            Image background;
             Graphics2D painter = (Graphics2D)g;
-
             if ((this.coordinate.getX() + this.coordinate.getY()) % 2 == 0){
-                background = Toolkit.getDefaultToolkit().getImage("art/wood/tile_light.gif");
+                painter.drawImage(Resource.TILE_LIGHT,0,0,this);
             }
             else{
-                background = Toolkit.getDefaultToolkit().getImage("art/wood/tile_dark.gif");
+                painter.drawImage(Resource.TILE_DARK,0,0,this);
             }
-
-            painter.drawImage(background,0,0,this);
         }
     }
 
@@ -797,15 +844,35 @@ public class Table {
 
     void setTurnSign(Alliance alliance){
         if (alliance.isWhite()) {
-            myTurnSignPannel.setBackground(HIGHLIGHT_COLOR);
-            opponentTurnSignPannel.setBackground(null);
+            myTurnSignPanel.enableSign(true);
+            opponentTurnSignPanel.enableSign(false);
         }
         else {
-            opponentTurnSignPannel.setBackground(HIGHLIGHT_COLOR);
-            myTurnSignPannel.setBackground(null);
+            opponentTurnSignPanel.enableSign(true);
+            myTurnSignPanel.enableSign(false);
         }
     }
 
+    private class TurnSignPanel extends JPanel{
+        private boolean signEnabled = false;
+
+        public void enableSign(boolean signEnabled){
+            this.signEnabled = signEnabled;
+            validate();
+            repaint();
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D painter = (Graphics2D)g;
+            if(signEnabled){
+                setBackground(Resource.HIGHLIGHT_COLOR);
+            } else {
+                painter.drawImage(Resource.BACKGROUND,0,0,this);
+            }
+        }
+    }
 
 }
 

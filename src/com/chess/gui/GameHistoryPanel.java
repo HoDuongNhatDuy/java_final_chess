@@ -2,9 +2,7 @@ package com.chess.gui;
 
 import com.chess.board.Board;
 import com.chess.board.Move;
-import com.chess.pieces.Rook;
 
-import javax.print.attribute.standard.MediaSize;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -21,27 +19,41 @@ public class GameHistoryPanel extends JPanel
 {
     private final DataModel model;
     private final JScrollPane scrollPane;
-    private static final Dimension HISTORY_PANEL_DIMENSION = new Dimension(150, 400);
+    private static final Dimension HISTORY_PANEL_DIMENSION = new Dimension(200, 400);
+
 
     GameHistoryPanel()
     {
         this.setLayout(new BorderLayout());
-
         this.model = new DataModel();
         final JTable table = new JTable(model);
-        table.setRowHeight(15);
-
+        table.setRowHeight(Resource.TABLE_ROW_HEIGHT);
+        table.setBorder(Resource.PANEL_BORDER);
         // Align text center
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer(){
+            @Override
+            public Component getTableCellRendererComponent(JTable table,Object value, boolean isSelected, boolean hasFocus,
+                                                           int row, int column) {
+                super.getTableCellRendererComponent(table, value, isSelected, hasFocus,row, column);
+                setFont(Resource.PANEL_FONT);
+                return this;
+            }
+        };
+        centerRenderer.setOpaque(false);
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
         table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
         table.getColumnModel().getColumn(1).setCellRenderer(centerRenderer);
+        table.getTableHeader().setFont(Resource.PANEL_FONT);
+
 
         this.scrollPane = new JScrollPane(table);
         scrollPane.setColumnHeaderView(table.getTableHeader());
         scrollPane.setPreferredSize(HISTORY_PANEL_DIMENSION);
 
         this.add(scrollPane, BorderLayout.CENTER);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+        table.setOpaque(false);
         this.setVisible(true);
     }
 
@@ -204,5 +216,12 @@ public class GameHistoryPanel extends JPanel
         {
             this.blackMove = blackMove;
         }
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Graphics2D painter = (Graphics2D)g;
+        painter.drawImage(Resource.SIDE_BACKGROUND,0,0,this);
     }
 }
