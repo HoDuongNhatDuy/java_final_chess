@@ -3,10 +3,10 @@ package com.chess.gui;
 import com.chess.Alliance;
 import com.chess.board.Move;
 import com.chess.pieces.Piece;
+import com.sun.org.apache.regexp.internal.RE;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -26,29 +26,53 @@ public class TakenPiecesPanel extends JPanel
     private final JPanel northPanel;
     private final JPanel southPanel;
 
-    private static final Color PANEL_COLOR = Color.decode("0xF2F2F2");
-    private static final EtchedBorder PANEL_BORDER = new EtchedBorder(EtchedBorder.RAISED);
-
-    private static final Dimension TAKEN_PIECES_DIMENSION = new Dimension(40, 700);
-
-    private final static String PIECE_ICON_PATH = "art/wood/";
+    private static final Dimension TAKEN_PIECES_DIMENSION = new Dimension(100, 700);
 
     public TakenPiecesPanel()
     {
         super(new BorderLayout());
-        this.setBackground(PANEL_COLOR);
-        this.setBorder(PANEL_BORDER);
+        this.setBorder(Resource.PANEL_BORDER);
+        JPanel titlePanel = new JPanel(){
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D painter = (Graphics2D)g;
+                painter.drawImage(Resource.TAKEN_PIECES_LOGO,0,10,this);
+            }
+        };
+        titlePanel.setPreferredSize(new Dimension(100,70));
+        titlePanel.setOpaque(false);
+
+
 
         this.northPanel = new JPanel(new GridLayout(8, 1));
-        this.northPanel.setBackground(PANEL_COLOR);
+        this.northPanel.setBorder(Resource.PANEL_BORDER);
+        this.northPanel.setOpaque(false);
 
         this.southPanel = new JPanel(new GridLayout(8, 1));
-        this.southPanel.setBackground(PANEL_COLOR);
+        this.southPanel.setBorder(Resource.PANEL_BORDER);
+        this.southPanel.setOpaque(false);
 
-        this.add(this.northPanel, BorderLayout.NORTH);
+
+        JPanel topPanel = new JPanel();
+        topPanel.setLayout(new BoxLayout(topPanel,BoxLayout.Y_AXIS));
+        topPanel.add(titlePanel);
+        topPanel.add(northPanel);
+        topPanel.setOpaque(false);
+
+        this.add(topPanel, BorderLayout.NORTH);
         this.add(this.southPanel, BorderLayout.SOUTH);
 
+
         setPreferredSize(TAKEN_PIECES_DIMENSION);
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Graphics2D painter = (Graphics2D)g;
+
+        painter.drawImage(Resource.SIDE_BACKGROUND,0,0,this);
     }
 
     public void redo(final MoveLog moveLog, boolean isFlipped) throws IOException
@@ -101,11 +125,11 @@ public class TakenPiecesPanel extends JPanel
 
             final BufferedImage image =
                     ImageIO.read(new File(
-                            PIECE_ICON_PATH +
+                            Resource.PIECE_ICON_PATH +
                                     alliance.toString().substring(0, 1) +
                                     takenPiece.toString() + ".gif"));
 
-            Image newimg = image.getScaledInstance(30, 30,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
+            Image newimg = image.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
             final ImageIcon newIcon = new ImageIcon(newimg);  // transform it back
 
             final JLabel imageLabel = new JLabel(newIcon);
@@ -120,11 +144,11 @@ public class TakenPiecesPanel extends JPanel
 
             final BufferedImage image =
                     ImageIO.read(new File(
-                            PIECE_ICON_PATH +
+                            Resource.PIECE_ICON_PATH +
                                     alliance.toString().substring(0, 1) +
                                     takenPiece.toString() + ".gif"));
 
-            Image newimg = image.getScaledInstance(30, 30,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
+            Image newimg = image.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
             final ImageIcon newIcon = new ImageIcon(newimg);  // transform it back
 
             final JLabel imageLabel = new JLabel(newIcon);
