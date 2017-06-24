@@ -157,6 +157,9 @@ public class Table {
         undo.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                if (vsType.isVsLan())
+                    return;
+
                 undo();
             }
         });
@@ -812,6 +815,7 @@ public class Table {
 
     private void restart() throws Exception {
         moveLog.clear();
+        System.out.println(moveLog.size());
         if (vsType.isVsLan()) {
             chessBoard = Board.createStandardBoard(partner.getAlliance().getOpposite());
             setTurnSign(chessBoard.getCurrentPlayer().getAlliance());
